@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import collections
+import copy
 
 import mkkm_mr
 import networkx as nx
@@ -15,17 +16,11 @@ from pamogk.gene_mapper import uniprot_mapper
 from pamogk.kernels.lmkkmeans_train import lmkkmeans_train
 from pamogk.kernels.pamogk import kernel
 from pamogk.lib.sutils import *
-from pamogk.pathway_reader import cx_pathway_reader as cx_pw
 from pamogk.communities import community_reader
 
-# see https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html
 from pamogk.result_processor.label_analysis import LabelAnalysis
 
-# import sys
-# sys.path.insert(0, '/Users/fma/dev/bilkent/research/snf')
-# sys.path.insert(0, '/Users/fma/dev/bilkent/research/mkkm-mr')
-
-parser = argparse.ArgumentParser(description="Run PAMOGK-mut algorithms on pathways")
+parser = argparse.ArgumentParser(description="Run PAMOGK-mut algorithms on communities")
 parser.add_argument(
     "--run-id", "-rid", metavar="run-id", dest="run_id", type=str, help="Unique Run ID"
 )
@@ -149,22 +144,99 @@ class Experiment1(object):
         safe_create_dir(self.result_dir)
         safe_create_dir(self.kernel_dir)
         # change log and create log file
-        change_log_path(self.data_dir / "run.log")
+        change_log_path(self.data_dir / "run_loong_loong3.log")
         log("exp_data_dir:", self.data_dir)
 
-        self.get_rnaseq_pw_path = (
-            lambda pw_id: self.kernel_dir
-            / f"rnaseq-over-under-expressed-pw_id={pw_id}.gpickle"
+        self.get_rnaseq_comm_path = (
+            lambda comm_id: self.kernel_dir
+            / f"rnaseq-over-under-expressed-comm_id={comm_id}.gpickle"
         )
-        self.get_rppa_pw_path = (
-            lambda pw_id: self.kernel_dir
-            / f"rppa-over-under-expressed-pw_id={pw_id}.gpickle"
+        self.get_rppa_comm_path = (
+            lambda comm_id: self.kernel_dir
+            / f"rppa-over-under-expressed-comm_id={comm_id}.gpickle"
         )
-        self.get_som_pw_path = (
-            lambda pw_id: self.kernel_dir
-            / f"pamogk-som-expressed-pw_id={pw_id}.gpickle"
+        self.get_som_comm_path = (
+            lambda comm_id: self.kernel_dir
+            / f"pamogk-som-expressed-comm_id={comm_id}.gpickle"
         )
 
+
+    def rnaseq_communities_save_valid(self, all_comm_map):
+        return np.all([self.get_rnaseq_comm_path(comm_id).exists() for comm_id in all_comm_map])
+
+    def rppa_communities_save_valid(self, all_comm_map):
+        return np.all([self.get_rppa_comm_path(comm_id).exists() for comm_id in all_comm_map])
+
+    def som_communities_save_valid(self, all_comm_map):
+        return np.all([self.get_som_comm_path(comm_id).exists() for comm_id in all_comm_map])
+
+    @timeit
+    def restore_rnaseq_communities(self, all_comm_map):
+        num_comm = len(all_comm_map)
+        res_comm_map = collections.OrderedDict()
+        for ind, comm_id in enumerate(all_comm_map.keys()):
+            path = self.get_rnaseq_comm_path(comm_id)
+            logr(
+                f"Loading over/under rnaseq expressed data {ind + 1:3}/{num_comm} comm_id={comm_id}"
+            )
+            res_comm_map[comm_id] = nx.read_gpickle(path)
+        log()
+        return res_comm_map
+
+    @timeit
+    def restore_rppa_communities(self, all_comm_map):
+        num_comm = len(all_comm_map)
+        res_comm_map = collections.OrderedDict()
+        for ind, comm_id in enumerate(all_comm_map.keys()):
+            path = self.get_rppa_comm_path(comm_id)
+            logr(
+                f"Loading over/under rppa expressed data {ind + 1:3}/{num_comm} comm_id={comm_id}"
+            )
+            res_comm_map[comm_id] = nx.read_gpickle(path)
+        log()
+        return res_comm_map
+
+    @timeit
+    def restore_som_communities(self, all_comm_map):
+        num_comm = len(all_comm_map)
+        res_comm_map = collections.OrderedDict()
+        for ind, comm_id in enumerate(all_comm_map.keys()):
+            path = self.get_som_comm_path(comm_id)
+            logr(f"Loading somatic mutation data {ind + 1:3}/{num_comm} comm_id={comm_id}")
+            res_comm_map[comm_id] = nx.read_gpickle(path)
+        log()
+        return res_comm_map
+
+    @timeit
+    def save_rnaseq_communities(self, all_comm_map):
+        num_comm = len(all_comm_map)
+        for ind, (comm_id, comm) in enumerate(all_comm_map.items()):
+            path = self.get_rnaseq_comm_path(comm_id)
+            logr(
+                f"Saving over/under rnaseq expressed data {ind + 1:3}/{num_comm} comm_id={comm_id}"
+            )
+            nx.write_gpickle(comm, path)
+        log()
+
+    @timeit
+    def save_rppa_communities(self, all_comm_map):
+        num_comm = len(all_comm_map)
+        for ind, (comm_id, comm) in enumerate(all_comm_map.items()):
+            path = self.get_rppa_comm_path(comm_id)
+            logr(
+                f"Saving over/under rppa expressed data {ind + 1:3}/{num_comm} comm_id={comm_id}"
+            )
+            nx.write_gpickle(comm, path)
+        log()
+
+    @timeit
+    def save_som_communities(self, all_comm_map):
+        num_comm = len(all_comm_map)
+        for ind, (comm_id, comm) in enumerate(all_comm_map.items()):
+            path = self.get_som_comm_path(comm_id)
+            logr(f"Saving somatic mutation data {ind + 1:3}/{num_comm} comm_id={comm_id}")
+            nx.write_gpickle(comm, path)
+        log()
     @timeit
     def read_rnaseq_data(self):
         # Real Data #
@@ -247,148 +319,41 @@ class Experiment1(object):
 
         return rs_GE, rs_pat, rp_GE, rp_pat, som_pat
 
-    @timeit
-    def preprocess_seq_patient_data(self, GE, all_ent_ids):
-        # get the dictionary of gene id mappers
-        uni2ent, ent2uni = uniprot_mapper.json_to_dict()
-
-        found_ent_ids = [eid in ent2uni for eid in all_ent_ids]
-        ent_ids = np.array([eid for eid in all_ent_ids if eid in ent2uni])
-        uni_ids = np.array([ent2uni[eid] for eid in ent_ids], dtype=object)
-
-        log("uni_ids:", len(uni_ids))
-        log("miss_ent_ids:", len(all_ent_ids) - sum(found_ent_ids))
-
-        # prune genes whose uniprot id is not found
-        GE = GE[found_ent_ids]
-        return GE, uni_ids
 
     @timeit
     def preprocess_som_patient_data(self, patients):
-        # get the dictionary of gene id mappers
-        uni2ent, ent2uni = uniprot_mapper.json_to_dict()
-
         res = []
-        num_empty = 0
         for pat_id, ent_ids in patients.items():
-            # uni_ids = [uid for eid in ent_ids if eid in ent2uni for uid in ent2uni[eid]]
-            uni_ids = [uid for eid in ent_ids if eid in ent2uni for uid in ent2uni[eid]]
-            # if there are any matches map them
             res.append(
                 {
                     "pat_id": pat_id,
-                    "mutated_nodes": uni_ids,
+                    "mutated_nodes": ent_ids,
                 }
             )
-        log("removed patients:", num_empty)
 
         return res
 
     @timeit
-    def read_pathways(self):
-        # get all pathways
-        return cx_pw.read_pathways()
-
-    @timeit
-    def read_communities_as_pathways(self):
-        # get all pathways
+    def read_comm(self):
         return community_reader.read_communities()
 
-    def rnaseq_pathways_save_valid(self, all_pw_map):
-        return np.all([self.get_rnaseq_pw_path(pw_id).exists() for pw_id in all_pw_map])
-
-    def rppa_pathways_save_valid(self, all_pw_map):
-        return np.all([self.get_rppa_pw_path(pw_id).exists() for pw_id in all_pw_map])
-
-    def som_pathways_save_valid(self, all_pw_map):
-        return np.all([self.get_som_pw_path(pw_id).exists() for pw_id in all_pw_map])
-
     @timeit
-    def restore_rnaseq_pathways(self, all_pw_map):
-        num_pw = len(all_pw_map)
-        res_pw_map = collections.OrderedDict()
-        for ind, pw_id in enumerate(all_pw_map.keys()):
-            path = self.get_rnaseq_pw_path(pw_id)
-            logr(
-                f"Loading over/under rnaseq expressed data {ind + 1:3}/{num_pw} pw_id={pw_id}"
-            )
-            res_pw_map[pw_id] = nx.read_gpickle(path)
-        log()
-        return res_pw_map
-
-    @timeit
-    def restore_rppa_pathways(self, all_pw_map):
-        num_pw = len(all_pw_map)
-        res_pw_map = collections.OrderedDict()
-        for ind, pw_id in enumerate(all_pw_map.keys()):
-            path = self.get_rppa_pw_path(pw_id)
-            logr(
-                f"Loading over/under rppa expressed data {ind + 1:3}/{num_pw} pw_id={pw_id}"
-            )
-            res_pw_map[pw_id] = nx.read_gpickle(path)
-        log()
-        return res_pw_map
-
-    @timeit
-    def restore_som_pathways(self, all_pw_map):
-        num_pw = len(all_pw_map)
-        res_pw_map = collections.OrderedDict()
-        for ind, pw_id in enumerate(all_pw_map.keys()):
-            path = self.get_som_pw_path(pw_id)
-            logr(f"Loading somatic mutation data {ind + 1:3}/{num_pw} pw_id={pw_id}")
-            res_pw_map[pw_id] = nx.read_gpickle(path)
-        log()
-        return res_pw_map
-
-    @timeit
-    def save_rnaseq_pathways(self, all_pw_map):
-        num_pw = len(all_pw_map)
-        for ind, (pw_id, pw) in enumerate(all_pw_map.items()):
-            path = self.get_rnaseq_pw_path(pw_id)
-            logr(
-                f"Saving over/under rnaseq expressed data {ind + 1:3}/{num_pw} pw_id={pw_id}"
-            )
-            nx.write_gpickle(pw, path)
-        log()
-
-    @timeit
-    def save_rppa_pathways(self, all_pw_map):
-        num_pw = len(all_pw_map)
-        for ind, (pw_id, pw) in enumerate(all_pw_map.items()):
-            path = self.get_rppa_pw_path(pw_id)
-            logr(
-                f"Saving over/under rppa expressed data {ind + 1:3}/{num_pw} pw_id={pw_id}"
-            )
-            nx.write_gpickle(pw, path)
-        log()
-
-    @timeit
-    def save_som_pathways(self, all_pw_map):
-        num_pw = len(all_pw_map)
-        for ind, (pw_id, pw) in enumerate(all_pw_map.items()):
-            path = self.get_som_pw_path(pw_id)
-            logr(f"Saving somatic mutation data {ind + 1:3}/{num_pw} pw_id={pw_id}")
-            nx.write_gpickle(pw, path)
-        log()
-
-    @timeit
-    def label_rnaseq_patient_genes(self, all_pw_map, pat_ids, GE, uni_ids):
+    def label_rnaseq_patient_genes(self, all_comm_map, pat_ids, GE, ent_ids):
         """Labels all patients with matching level of expression
 
         Parameters
         ----------
-        all_pw_map: :obj:`list` of :obj:`networkx.classes.graph.Graph`
-            a dictionary of all pathways we are using
+        all_comm_map: :obj:`list` of :obj:`networkx.classes.graph.Graph`
+            a dictionary of all communities we are using
         pat_ids: :obj:`list` of :obj:`str`
             list of patient ids
         GE: :obj:`numpy.ndarray`
             Gene expression data array in shape of genes by patients
-        uni_ids: :obj:`numpy.ndarray`
+        ent_ids: :obj:`numpy.ndarray`
             mapping from uniprot to gene
         """
-        # check if we already stored all over/under expression pathway data if so restore them
-        if self.rnaseq_pathways_save_valid(all_pw_map):
-            return self.restore_rnaseq_pathways(all_pw_map)
+        if self.rnaseq_communities_save_valid(all_comm_map):
+            return self.restore_rnaseq_communities(all_comm_map)
 
         num_pat = pat_ids.shape[0]
         # if there are missing ones calculate all of them
@@ -399,21 +364,21 @@ class Experiment1(object):
                 logr(
                     f"RNAseq Checking patient for over-expressed  {ind + 1:4}/{num_pat} pid={pid}"
                 )
-                label_mapper.mark_cont_label_on_pathways(
-                    "oe", pid, all_pw_map, uni_ids, gene_vals
+                label_mapper.mark_cont_label_on_communities(
+                    "oe", pid, all_comm_map, ent_ids, gene_vals
                 )
-                label_mapper.mark_extra_label_on_pathways(
-                    f"oe-{self.label}", pid, all_pw_map, "oe", self.threshold
+                label_mapper.mark_extra_label_on_communities(
+                    f"oe-{self.label}", pid, all_comm_map, "oe", self.threshold
                 )
 
                 logr(
                     f"RNAseq Checking patient for under-expressed {ind + 1:4}/{num_pat} pid={pid}"
                 )
-                label_mapper.mark_cont_label_on_pathways(
-                    "ue", pid, all_pw_map, uni_ids, gene_vals
+                label_mapper.mark_cont_label_on_communities(
+                    "ue", pid, all_comm_map, ent_ids, gene_vals
                 )
-                label_mapper.mark_extra_label_on_pathways(
-                    f"ue-{self.label}", pid, all_pw_map, "ue", self.threshold
+                label_mapper.mark_extra_label_on_communities(
+                    f"ue-{self.label}", pid, all_comm_map, "ue", self.threshold
                 )
             else:
                 logr(
@@ -422,9 +387,9 @@ class Experiment1(object):
                 gene_ind = (
                     GE[..., pat_ids == pid] == 1
                 ).flatten()  # over expressed genes
-                genes = uni_ids[gene_ind]  # get uniprot gene ids from indices
-                label_mapper.mark_label_on_pathways(
-                    "oe", pid, all_pw_map, genes, self.label
+                genes = ent_ids[gene_ind]  # get uniprot gene ids from indices
+                label_mapper.mark_label_on_communities(
+                    "oe", pid, all_comm_map, genes, self.label
                 )
 
                 logr(
@@ -433,33 +398,33 @@ class Experiment1(object):
                 gene_ind = (
                     GE[..., pat_ids == pid] == -1
                 ).flatten()  # under expressed genes
-                genes = uni_ids[gene_ind]  # get uniprot gene ids from indices
-                label_mapper.mark_label_on_pathways(
-                    "ue", pid, all_pw_map, genes, self.label
+                genes = ent_ids[gene_ind]  # get uniprot gene ids from indices
+                label_mapper.mark_label_on_communities(
+                    "ue", pid, all_comm_map, genes, self.label
                 )
         log()
 
-        self.save_rnaseq_pathways(all_pw_map)
-        return all_pw_map
+        self.save_rnaseq_communities(all_comm_map)
+        return all_comm_map
 
     @timeit
-    def label_rppa_patient_genes(self, all_pw_map, pat_ids, GE, uni_ids):
+    def label_rppa_patient_genes(self, all_comm_map, pat_ids, GE, ent_ids):
         """Labels all patients with matching level of expression
 
         Parameters
         ----------
-        all_pw_map: :obj:`list` of :obj:`networkx.classes.graph.Graph`
-            a dictionary of all pathways we are using
+        all_comm_map: :obj:`list` of :obj:`networkx.classes.graph.Graph`
+            a dictionary of all communities we are using
         pat_ids: :obj:`list` of :obj:`str`
             list of patient ids
         GE: :obj:`numpy.ndarray`
             Gene expression data array in shape of genes by patients
-        uni_ids: :obj:`numpy.ndarray`
+        ent_ids: :obj:`numpy.ndarray`
             mapping from uniprot to gene
         """
         # check if we already stored all over/under expression pathway data if so restore them
-        ## if self.rppa_pathways_save_valid(all_pw_map):
-        ##     return self.restore_rppa_pathways(all_pw_map)
+        if self.rppa_communities_save_valid(all_comm_map):
+            return self.restore_rppa_communities(all_comm_map)
 
         num_pat = pat_ids.shape[0]
         # if there are missing ones calculate all of them
@@ -470,21 +435,21 @@ class Experiment1(object):
                 logr(
                     f"RPPA Checking patient for over-expressed  {ind + 1:4}/{num_pat} pid={pid}"
                 )
-                label_mapper.mark_cont_label_on_pathways(
-                    "oe", pid, all_pw_map, uni_ids, gene_vals
+                label_mapper.mark_cont_label_on_communities(
+                    "oe", pid, all_comm_map, ent_ids, gene_vals
                 )
-                label_mapper.mark_extra_label_on_pathways(
-                    f"oe-{self.label}", pid, all_pw_map, "oe", self.threshold
+                label_mapper.mark_extra_label_on_communities(
+                    f"oe-{self.label}", pid, all_comm_map, "oe", self.threshold
                 )
 
                 logr(
                     f"RPPA Checking patient for under-expressed {ind + 1:4}/{num_pat} pid={pid}"
                 )
-                label_mapper.mark_cont_label_on_pathways(
-                    "ue", pid, all_pw_map, uni_ids, gene_vals
+                label_mapper.mark_cont_label_on_communities(
+                    "ue", pid, all_comm_map, ent_ids, gene_vals
                 )
-                label_mapper.mark_extra_label_on_pathways(
-                    f"ue-{self.label}", pid, all_pw_map, "ue", self.threshold
+                label_mapper.mark_extra_label_on_communities(
+                    f"ue-{self.label}", pid, all_comm_map, "ue", self.threshold
                 )
             else:
                 logr(
@@ -493,9 +458,9 @@ class Experiment1(object):
                 gene_ind = (
                     GE[..., pat_ids == pid] == 1
                 ).flatten()  # over expressed genes
-                genes = uni_ids[gene_ind]  # get uniprot gene ids from indices
-                label_mapper.mark_label_on_pathways(
-                    "oe", pid, all_pw_map, genes, self.label
+                genes = ent_ids[gene_ind]
+                label_mapper.mark_label_on_communities(
+                    "oe", pid, all_comm_map, genes, self.label
                 )
 
                 logr(
@@ -504,82 +469,86 @@ class Experiment1(object):
                 gene_ind = (
                     GE[..., pat_ids == pid] == -1
                 ).flatten()  # under expressed genes
-                genes = uni_ids[gene_ind]  # get uniprot gene ids from indices
-                label_mapper.mark_label_on_pathways(
-                    "ue", pid, all_pw_map, genes, self.label
+                genes = ent_ids[gene_ind] 
+                label_mapper.mark_label_on_communities(
+                    "ue", pid, all_comm_map, genes, self.label
                 )
         log()
 
-        self.save_rppa_pathways(all_pw_map)
-        return all_pw_map
+        self.save_rppa_communities(all_comm_map)
+        return all_comm_map
 
-    def label_som_patient_genes(self, all_pw_map, patients):
+    def label_som_patient_genes(self, all_comm_map, patients):
         """Labels all patients with matching level of expression
 
         Parameters
         ----------
-        all_pw_map: :obj:`list` of :obj:`networkx.classes.graph.Graph`
-            a dictionary of all pathways we are using
+        all_comm_map: :obj:`list` of :obj:`networkx.classes.graph.Graph`
+            a dictionary of all communities we are using
         patients: :obj:`list`
             list of patients with mutation mappings
         """
-        # check if we already stored all over/under expression pathway data if so restore them
-        if self.som_pathways_save_valid(all_pw_map):
-            return self.restore_som_pathways(all_pw_map)
+        if self.som_communities_save_valid(all_comm_map):
+            return self.restore_som_communities(all_comm_map)
 
         num_pat = len(patients)
         # if there are missing ones calculate all of them
         log("Somatic mutation patient pathway labeling")
         for ind, patient in enumerate(patients):
             pid = patient["pat_id"]
-            genes = patient["mutated_nodes"]  # get uniprot gene ids from indices
+            genes = patient["mutated_nodes"]
             genes = np.array([genes])
             logr(
                 f"Checking patient for somatic mutation {ind + 1:4}/{num_pat} pid={pid}"
             )
-            label_mapper.mark_label_on_pathways(
-                "som", pid, all_pw_map, genes, self.label
+            label_mapper.mark_label_on_communities(
+                "som", pid, all_comm_map, genes, self.label
             )
         log()
+        self.save_som_communities(all_comm_map)
 
-        self.save_som_pathways(all_pw_map)
-        return all_pw_map
+        self.save_rnaseq_communities(all_comm_map)
+        return all_comm_map
 
     @timeit
-    def create_seq_kernels(self, all_pw_map, pat_ids, kms_file_name):
+    def create_seq_kernels(self, all_comm_map, pat_ids, kms_file_name):
         # experiment variables
         num_pat = pat_ids.shape[0]
-        num_pw = len(all_pw_map)
+        num_comm = len(all_comm_map)
         kms_path = self.kernel_dir / f"{kms_file_name}.npz"
-        if kms_path.exists():
-            return np_load_data(kms_path, key="kms")
+        if kms_file_name != "rnaseq-kms":
+            if kms_path.exists():
+                return np_load_data(kms_path, key="kms")
         # calculate kernel matrices for over expressed genes
-        over_exp_kms = np.zeros((num_pw, num_pat, num_pat))
-        for ind, (pw_id, pw) in enumerate(all_pw_map.items()):  # for each pathway
+        bound=num_comm
+        over_exp_kms = np.zeros((bound, num_pat, num_pat))
+        for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
+            if ind >=bound:
+                break
             over_exp_kms[ind] = kernel(
                 pat_ids,
-                pw,
+                comm,
                 label_key=f"label-oe-{self.label}",
                 alpha=self.smoothing_alpha,
                 normalization=self.kernel_normalization,
             )
             logr(
-                f"Calculating oe pathway kernel={kms_file_name} {ind + 1:4}/{num_pw} pw_id={pw_id}"
+                f"Calculating oe pathway kernel={kms_file_name} {ind + 1:4}/{num_comm} comm_id={comm_id}"
             )
         log()
 
         # calculate kernel matrices for under expressed genes
-        under_exp_kms = np.zeros((num_pw, num_pat, num_pat))
-        for ind, (pw_id, pw) in enumerate(all_pw_map.items()):  # for each pathway
+        under_exp_kms = np.zeros((num_comm, num_pat, num_pat))
+        for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
             under_exp_kms[ind] = kernel(
                 pat_ids,
-                pw,
+                comm,
                 label_key=f"label-ue-{self.label}",
                 alpha=self.smoothing_alpha,
                 normalization=self.kernel_normalization,
             )
             logr(
-                f"Calculating ue pathway kernel={kms_file_name} {ind + 1:4}/{num_pw} pw_id={pw_id}"
+                f"Calculating ue pathway kernel={kms_file_name} {ind + 1:4}/{num_comm} comm_id={comm_id}"
             )
         log()
 
@@ -589,26 +558,30 @@ class Experiment1(object):
         return kms
 
     @timeit
-    def create_som_kernels(self, all_pw_map, patients):
+    def create_som_kernels(self, all_comm_map, patients):
         # experiment variables
         num_pat = len(patients)
-        num_pw = len(all_pw_map)
+        num_comm = len(all_comm_map)
         kms_path = self.kernel_dir / "som-kms.npz"
         if kms_path.exists():
-            return np_load_data(kms_path, key="kms")
+           return np_load_data(kms_path, key="kms")
         # calculate kernel matrices for over expressed genes
-        kms = np.zeros((num_pw, num_pat, num_pat))
+        bound = num_comm
+        kms = np.zeros((bound, num_pat, num_pat))
         pat_ids = np.array([pat["pat_id"] for pat in patients])
-        for ind, (pw_id, pw) in enumerate(all_pw_map.items()):  # for each pathway
+        all_comm_map = collections.OrderedDict(sorted(all_comm_map.items(), key= lambda x: len(x[1].nodes)))
+        for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
+            if ind >= bound:
+                break
             kms[ind] = kernel(
                 pat_ids,
-                pw,
+                comm,
                 label_key="label-som",
                 alpha=self.smoothing_alpha,
                 normalization=self.kernel_normalization,
             )
             logr(
-                f"Calculating som mut pathway kernel {ind + 1:4}/{num_pat} pw_id={pw_id}"
+                f"Calculating som mut pathway kernel {ind + 1:4}/{num_pat} comm_id={comm_id}"
             )
         log()
 
@@ -694,8 +667,17 @@ class Experiment1(object):
         else:
             return self.cluster_discrete(kernels, n_clusters)
 
+
     @timeit
-    def read_intersect(self):
+    def run_preprocess(self, rs_GE, rp_GE, rs_ent_ids, rp_ent_ids, som_patients):
+        som_patients = self.preprocess_som_patient_data(som_patients)
+
+        return rs_GE, rp_GE, rs_ent_ids, rp_ent_ids, som_patients
+
+    @timeit
+    def run_read(self):
+        # Patient part
+        # RnaSeq Data
         rs_GE, rs_pat_ids, rs_ent_ids = self.read_rnaseq_data()
 
         # Rppa Data
@@ -715,19 +697,9 @@ class Experiment1(object):
             rs_GE, rs_pat_ids, rp_GE, rp_pat_ids, som_patients
         )
 
-        return (
-            (rs_GE, rs_pat_ids, rs_ent_ids),
-            (rp_GE, rp_pat_ids, rp_ent_ids),
-            som_patients,
-        )
-
-    @timeit
-    def run_preprocess(self, rs_GE, rp_GE, rs_ent_ids, rp_ent_ids, som_patients):
-        rs_GE, rs_uni_ids = self.preprocess_seq_patient_data(rs_GE, rs_ent_ids)
-        rp_GE, rp_uni_ids = self.preprocess_seq_patient_data(rp_GE, rp_ent_ids)
-        som_patients = self.preprocess_som_patient_data(som_patients)
-
-        return rs_GE, rp_GE, rs_uni_ids, rp_uni_ids, som_patients
+        all_rs_comm_map = self.read_comm()
+        all_rp_comm_map = copy.deepcopy(all_rs_comm_map)
+        all_som_comm_map = copy.deepcopy(all_rs_comm_map)
 
     @timeit
     def run(self):
@@ -752,37 +724,36 @@ class Experiment1(object):
             rs_GE, rs_pat_ids, rp_GE, rp_pat_ids, som_patients
         )
 
+        all_rs_comm_map = self.read_comm()
+        all_rp_comm_map = copy.deepcopy(all_rs_comm_map)
+        all_som_comm_map = copy.deepcopy(all_rs_comm_map)
+
         # Kernel part
         # RnaSeq Data
-        rs_GE, rs_uni_ids = self.preprocess_seq_patient_data(rs_GE, rs_ent_ids)
-        all_rs_pw_map = self.read_communities_as_pathways()
-        labeled_all_rs_pw_map = self.label_rnaseq_patient_genes(
-            all_rs_pw_map, rs_pat_ids, rs_GE, rs_uni_ids
+        labeled_all_rs_comm_map = self.label_rnaseq_patient_genes(
+            all_rs_comm_map, rs_pat_ids, rs_GE, rs_ent_ids
         )
         rs_kernels = self.create_seq_kernels(
-            labeled_all_rs_pw_map, rs_pat_ids, "rnaseq-kms"
+            labeled_all_rs_comm_map, rs_pat_ids, "rnaseq-kms"
         )
 
         # Rppa Data
-        rp_GE, rp_uni_ids = self.preprocess_seq_patient_data(rp_GE, rp_ent_ids)
-        all_rp_pw_map = self.read_communities_as_pathways()
-        labeled_all_rp_pw_map = self.label_rppa_patient_genes(
-            all_rp_pw_map, rp_pat_ids, rp_GE, rp_uni_ids
+        labeled_all_rp_comm_map = self.label_rppa_patient_genes(
+            all_rp_comm_map, rp_pat_ids, rp_GE, rp_ent_ids
         )
         rp_kernels = self.create_seq_kernels(
-            labeled_all_rp_pw_map, rp_pat_ids, "rppa-kms"
+            labeled_all_rp_comm_map, rp_pat_ids, "rppa-kms"
         )
 
         # Somatic mutation data
         som_patients = self.preprocess_som_patient_data(som_patients)
-        all_som_pw_map = self.read_communities_as_pathways()
-        labeled_all_som_pw_map = self.label_som_patient_genes(
-            all_som_pw_map, som_patients
+        labeled_all_som_comm_map = self.label_som_patient_genes(
+            all_som_comm_map, som_patients
         )
-        som_kernels = self.create_som_kernels(labeled_all_som_pw_map, som_patients)
+        som_kernels = self.create_som_kernels(labeled_all_som_comm_map, som_patients)
 
         kernels = np.concatenate((rs_kernels, rp_kernels, som_kernels))
-
+        ##kernels = np.concatenate((rp_kernels, som_kernels))
         total = kernels.shape[1] * kernels.shape[2]
         limit = (self.drop_percent * total) / 100.0
         valid_kernels = kernels[np.count_nonzero(kernels, axis=(1, 2)) >= limit]

@@ -1,0 +1,2 @@
+/cta/users/aosman/pamogk/pamogk/kernels/pamogk.py:96: RuntimeWarning: invalid value encountered in true_divide
+  alpha_norm_adj_mat = alpha * adj_m / np.sum(adj_m, axis=0)
