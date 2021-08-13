@@ -5,27 +5,27 @@ import pandas as pd
 
 from .. import config
 
-RPPA_DATA_DIR = config.DATA_DIR / 'rppa'
+RPPA_DATA_DIR = config.DATA_DIR / "rppa"
 
 
 def prune_proteins(data):
-    tmp = data['#probe'].str.split('-')
+    tmp = data["#probe"].str.split("-")
     prots = []
     un_proc_prots = []
     for prot in tmp:
         pieces = prot[:-2]
 
-        un_proc_prot_name = '-'.join(pieces)
-        tmp = ''.join(pieces)
-        prot_name = ''.join(tmp.split('_'))
+        un_proc_prot_name = "-".join(pieces)
+        tmp = "".join(pieces)
+        prot_name = "".join(tmp.split("_"))
         prots.append(prot_name.upper())
         un_proc_prots.append(un_proc_prot_name)
     return prots, un_proc_prots
 
 
-def read_csv(path, has_header=False, delimiter=',', mapper=lambda r: r):
+def read_csv(path, has_header=False, delimiter=",", mapper=lambda r: r):
     path = RPPA_DATA_DIR / path
-    with open(path, 'r', encoding='utf8', errors='ignore') as file:
+    with open(path, "r", encoding="utf8", errors="ignore") as file:
         csv_reader = csv.reader(file, delimiter=delimiter)
         if has_header:
             next(csv_reader)
@@ -34,18 +34,30 @@ def read_csv(path, has_header=False, delimiter=',', mapper=lambda r: r):
 
 def get_entrez_data():
     # First mapping
-    p2eg = read_csv('gene_uniprot_entrez_kegg.csv', has_header=True, delimiter=';', mapper=lambda r: [r[0], r[3]])
+    p2eg = read_csv(
+        "gene_uniprot_entrez_kegg.csv",
+        has_header=True,
+        delimiter=";",
+        mapper=lambda r: [r[0], r[3]],
+    )
 
     # Second mapping
-    add_map = read_csv('external_mapping_of_rppa_proteins.csv')
+    add_map = read_csv("external_mapping_of_rppa_proteins.csv")
 
     # Third mapping
-    ext_eg_id_map = read_csv('external_mapping_of_rppa_proteins_with_entrez_gene_ids.txt')
+    ext_eg_id_map = read_csv(
+        "external_mapping_of_rppa_proteins_with_entrez_gene_ids.txt"
+    )
 
     # Fourth mapping
-    manual_map = read_csv('manual_mapping.txt')
+    manual_map = read_csv("manual_mapping.txt")
 
-    return np.array(p2eg), np.array(add_map), np.array(ext_eg_id_map), np.array(manual_map)
+    return (
+        np.array(p2eg),
+        np.array(add_map),
+        np.array(ext_eg_id_map),
+        np.array(manual_map),
+    )
 
 
 def process(filename, is_continuous=False, threshold=1.96):
@@ -57,12 +69,12 @@ def process(filename, is_continuous=False, threshold=1.96):
                 genes with entrez gene id are on rows and patient ids are on columns
     """
 
-    data = pd.read_csv(config.get_safe_data_file(filename), sep='\t')
+    data = pd.read_csv(config.get_safe_data_file(filename), sep="\t")
     # data = data.set_index(['Gene Name', 'Entrez Gene ID'])
     # data = data.set_index('Entrez Gene ID')
     drop_cols = []
     for col in data.columns:
-        if not (col == '#probe') and not ('01' in col.split('-')[3]):
+        if not (col == "#probe") and not ("01" in col.split("-")[3]):
             drop_cols.append(col)
 
     data.drop(columns=drop_cols)
@@ -94,17 +106,17 @@ def process(filename, is_continuous=False, threshold=1.96):
     map_eg_id(manual_map)
 
     # data.replace(list(data['#probe']), list(eg_ids))
-    data['#probe'] = eg_ids.astype(int)
+    data["#probe"] = eg_ids.astype(int)
 
     # drop the genes which are not expressed more than half of the samples
     genes_to_drop = data.index[(data == 0).T.sum().values > (len(data.columns) / 2)]
     data = data.drop(genes_to_drop)
 
     data = data.sort_index(axis=1)
-    data = data.sort_values('#probe', ascending=True)
-    data = data.drop_duplicates(subset='#probe', keep='first')
-    data['#probe'] = np.array(data['#probe']).astype('str')
-    data = data.set_index(['#probe'])
+    data = data.sort_values("#probe", ascending=True)
+    data = data.drop_duplicates(subset="#probe", keep="first")
+    data["#probe"] = np.array(data["#probe"]).astype("str")
+    data = data.set_index(["#probe"])
 
     # calculate z-scores
     mean_exp = data.mean(axis=1, numeric_only=True)

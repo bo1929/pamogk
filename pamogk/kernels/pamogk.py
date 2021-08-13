@@ -6,6 +6,7 @@ from pamogk.lib.sutils import *
 # options are raise, warn, print (default)
 # np.seterr(all='raise')
 
+
 def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=False):
     """
     Parameters
@@ -17,7 +18,6 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=F
     alpha: float
         the smoothing parameter
     label_key: str
-        label attribute key showing patient to label mapping. Should be filled in experiment
     epsilon: {1e-6} float
         smoothing converges if the change is lower than epsilon
     normalization: {False} bool
@@ -26,10 +26,11 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=F
 
     num_pat = pat_ids.shape[0]
     pat_ind = {}
-    for ind, pid in enumerate(pat_ids): pat_ind[pid] = ind
+    for ind, pid in enumerate(pat_ids):
+        pat_ind[pid] = ind
     # extract labels of nodes of graphs
     mutations = np.zeros([num_pat, len(pathway.nodes)], dtype=np.float)
-    for nid in pathway.nodes:
+    for idx, nid in enumerate(pathway.nodes):
         nd = pathway.nodes[nid]
         for pid, lb in nd[label_key].items():
             if pid in pat_ind.keys():
@@ -37,7 +38,7 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=F
                     _lb = float(lb)
                 except ValueError:
                     _lb = 1
-                mutations[pat_ind[pid], nid] = _lb
+                mutations[pat_ind[pid], idx] = _lb
 
     # extract the adjacency matrix on the order of nodes we have
     adj_mat = nx.to_numpy_array(pathway, nodelist=pathway.nodes)
@@ -57,13 +58,16 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=F
         # add source node to checked nodes so we won't check it again in destinations
         checked.append(src)
         # skip if the source is not gene/protein
-        if pathway.nodes[src]['type'] != 'Protein': continue
+        if pathway.nodes[src]["type"] != "Protein":
+            continue
         # otherwise
         for dst, sp in dsp.items():
             # if destination already checked skip
-            if dst in checked: continue
+            if dst in checked:
+                continue
             # if the destination is not gene/protein skip
-            if pathway.nodes[sp[-1]]['type'] != 'Protein': continue
+            if pathway.nodes[sp[-1]]["type"] != "Protein":
+                continue
             ind = np.isin(pathway.nodes, sp)
             tmp_md = mutations[:, ind]
             # calculate similarities of patients based on the current pathway
@@ -71,7 +75,8 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=F
             km += tmp_km  # update the main kernel matrix
 
     # normalize the kernel matrix if normalization is true
-    if normalization == True: km = normalize_kernel_matrix(km)
+    if normalization == True:
+        km = normalize_kernel_matrix(km)
 
     return km
 
@@ -115,48 +120,78 @@ def main():
 
     # Add edges to to the graph object
     # Each tuple represents an edge between two nodes
-    mg.add_edges_from([
-        ('A', 'B'),
-        ('A', 'C'),
-        ('C', 'D'),
-        ('A', 'E'),
-        ('C', 'E'),
-        ('D', 'B'),
-        ('B', 'C'),
-        ('C', 'X')])
+    mg.add_edges_from(
+        [
+            ("A", "B"),
+            ("A", "C"),
+            ("C", "D"),
+            ("A", "E"),
+            ("C", "E"),
+            ("D", "B"),
+            ("B", "C"),
+            ("C", "X"),
+        ]
+    )
 
     mg2 = nx.Graph()
-    mg2.add_edges_from([
-        ('A', 'B'),
-        ('A', 'C'),
-        ('C', 'D'),
-        ('A', 'E'),
-        ('C', 'E'),
-        ('D', 'B'),
-        ('B', 'C'),
-        ('C', 'X')])
+    mg2.add_edges_from(
+        [
+            ("A", "B"),
+            ("A", "C"),
+            ("C", "D"),
+            ("A", "E"),
+            ("C", "E"),
+            ("D", "B"),
+            ("B", "C"),
+            ("C", "X"),
+        ]
+    )
 
-    nx.set_node_attributes(mg, {'X': 0, 'A': 1, 'B': 0, 'C': 0, 'D': 1, 'E': 0}, 'label')
+    nx.set_node_attributes(
+        mg, {"X": 0, "A": 1, "B": 0, "C": 0, "D": 1, "E": 0}, "label"
+    )
     # nx.set_node_attributes(mg, {'X':'Protein', 'A':'Calcium', 'B':'Protein', 'C':'Protein', 'D':'Calcium', 'E':'Protein'}, 'type')
-    nx.set_node_attributes(mg, {'X': 'Protein', 'A': 'Protein', 'B': 'Protein', 'C': 'Protein', 'D': 'Protein',
-                                'E': 'Protein'}, 'type')
+    nx.set_node_attributes(
+        mg,
+        {
+            "X": "Protein",
+            "A": "Protein",
+            "B": "Protein",
+            "C": "Protein",
+            "D": "Protein",
+            "E": "Protein",
+        },
+        "type",
+    )
 
-    nx.set_node_attributes(mg2, {'X': 1, 'A': 1, 'B': 0, 'C': 0, 'D': 1, 'E': 0}, 'label')
+    nx.set_node_attributes(
+        mg2, {"X": 1, "A": 1, "B": 0, "C": 0, "D": 1, "E": 0}, "label"
+    )
     # nx.set_node_attributes(mg2, {'X':'Protein', 'A':'Calcium', 'B':'Protein', 'C':'Protein', 'D':'Calcium', 'E':'Protein'}, 'type')
-    nx.set_node_attributes(mg2, {'X': 'Protein', 'A': 'Protein', 'B': 'Protein', 'C': 'Protein', 'D': 'Protein',
-                                 'E': 'Protein'}, 'type')
+    nx.set_node_attributes(
+        mg2,
+        {
+            "X": "Protein",
+            "A": "Protein",
+            "B": "Protein",
+            "C": "Protein",
+            "D": "Protein",
+            "E": "Protein",
+        },
+        "type",
+    )
 
     # smoothing parameter for the kernel
     alpha = 0.1
 
     # calculate the kernel using PAMOGK
     # NOTE: this might not be working after some changes to the kernel method
-    km = kernel(np.array([0, 1]), mg, alpha=alpha, label_key='label')
+    km = kernel(np.array([0, 1]), mg, alpha=alpha, label_key="label")
 
     # display the resulting kernel matrix
-    print('Kernel matrix calculated by PAMOGK with alpha', alpha)
+    print("Kernel matrix calculated by PAMOGK with alpha", alpha)
     print(km)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 
-class Graph():
+class Graph:
     def __init__(self, nx_G, is_directed, p, q, debug=False):
         self.debug = debug
         self.G = nx_G
@@ -26,11 +26,16 @@ class Graph():
             cur_nbrs = sorted(G.neighbors(cur))
             if len(cur_nbrs) > 0:
                 if len(walk) == 1:
-                    walk.append(cur_nbrs[alias_draw(alias_nodes[cur][0], alias_nodes[cur][1])])
+                    walk.append(
+                        cur_nbrs[alias_draw(alias_nodes[cur][0], alias_nodes[cur][1])]
+                    )
                 else:
                     prev = walk[-2]
-                    next = cur_nbrs[alias_draw(alias_edges[(prev, cur)][0],
-                                               alias_edges[(prev, cur)][1])]
+                    next = cur_nbrs[
+                        alias_draw(
+                            alias_edges[(prev, cur)][0], alias_edges[(prev, cur)][1]
+                        )
+                    ]
                     walk.append(next)
             else:
                 break
@@ -44,12 +49,16 @@ class Graph():
         G = self.G
         walks = []
         nodes = list(G.nodes())
-        if self.debug: print('Walk iteration:')
+        if self.debug:
+            print("Walk iteration:")
         for walk_iter in range(num_walks):
-            if self.debug: print(str(walk_iter + 1), '/', str(num_walks))
+            if self.debug:
+                print(str(walk_iter + 1), "/", str(num_walks))
             random.shuffle(nodes)
             for node in nodes:
-                walks.append(self.node2vec_walk(walk_length=walk_length, start_node=node))
+                walks.append(
+                    self.node2vec_walk(walk_length=walk_length, start_node=node)
+                )
 
         return walks
 
@@ -64,11 +73,11 @@ class Graph():
         unnormalized_probs = []
         for dst_nbr in sorted(G.neighbors(dst)):
             if dst_nbr == src:
-                unnormalized_probs.append(G[dst][dst_nbr]['weight'] / p)
+                unnormalized_probs.append(G[dst][dst_nbr]["weight"] / p)
             elif G.has_edge(dst_nbr, src):
-                unnormalized_probs.append(G[dst][dst_nbr]['weight'])
+                unnormalized_probs.append(G[dst][dst_nbr]["weight"])
             else:
-                unnormalized_probs.append(G[dst][dst_nbr]['weight'] / q)
+                unnormalized_probs.append(G[dst][dst_nbr]["weight"] / q)
         norm_const = sum(unnormalized_probs)
         normalized_probs = [float(u_prob) / norm_const for u_prob in unnormalized_probs]
 
@@ -83,9 +92,13 @@ class Graph():
 
         alias_nodes = {}
         for node in G.nodes():
-            unnormalized_probs = [G[node][nbr]['weight'] for nbr in sorted(G.neighbors(node))]
+            unnormalized_probs = [
+                G[node][nbr]["weight"] for nbr in sorted(G.neighbors(node))
+            ]
             norm_const = sum(unnormalized_probs)
-            normalized_probs = [float(u_prob) / norm_const for u_prob in unnormalized_probs]
+            normalized_probs = [
+                float(u_prob) / norm_const for u_prob in unnormalized_probs
+            ]
             alias_nodes[node] = alias_setup(normalized_probs)
 
         alias_edges = {}
@@ -149,5 +162,6 @@ def alias_draw(J, q):
         return kk
     else:
         return J[kk]
+
 
 # accessed:2020-02-18 20:00:07.529926

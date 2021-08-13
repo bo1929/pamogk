@@ -1,1 +1,1 @@
-__all__ = ['uniprot_mapper']
+__all__ = ["uniprot_mapper"]

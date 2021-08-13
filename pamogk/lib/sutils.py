@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-ISO_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
+ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
 def timeit(f):
@@ -30,10 +30,10 @@ def timeit(f):
     """
 
     def wrapper(*args, **kwargs):
-        log('Started:', f.__qualname__)
+        log("Started:", f.__qualname__)
         t = time.time()
         res = f(*args, **kwargs)
-        log(f'Finished: {f.__qualname__} elapsed: {time.time() - t:.2f}s')
+        log(f"Finished: {f.__qualname__} elapsed: {time.time() - t:.2f}s")
         return res
 
     return wrapper
@@ -47,7 +47,7 @@ def safe_create_dir(d: Path):
     d: :obj:`pathlib.Path`
     """
     if not d.exists():
-        log('Dir not found creating:', d)
+        log("Dir not found creating:", d)
         d.mkdir(parents=True)
 
 
@@ -73,41 +73,41 @@ def change_log_path(path):
         log_f.close()
     log_p = path
     ensure_file_dir(path)
-    log_f = open(path, 'a')
-    log('Initialized log_path:', path)
+    log_f = open(path, "a")
+    log("Initialized log_path:", path)
 
 
 def logr(*args, **kwargs):
-    log(*args, **kwargs, end='\r')
+    log(*args, **kwargs, end="\r")
 
 
 def log(*args, **kwargs):
     ts = datetime.now().strftime(ISO_FORMAT)[:-3]
-    if 'ts' not in kwargs or kwargs['ts'] is not False:
+    if "ts" not in kwargs or kwargs["ts"] is not False:
         args = [ts, *args]
-    if 'ts' in kwargs:
-        del kwargs['ts']
+    if "ts" in kwargs:
+        del kwargs["ts"]
     print(*args, **kwargs)
     if log_f:
         print(*args, **kwargs, file=log_f)
         log_f.flush()
 
 
-def ensure_suffix(path, suffix='.npz'):
+def ensure_suffix(path, suffix=".npz"):
     if isinstance(path, Path):
         return path.with_suffix(suffix)
     if isinstance(path, str):
-        if path[-len(suffix):] != suffix:
+        if path[-len(suffix) :] != suffix:
             return path + suffix
         return path
-    raise TypeError('path must be either pathlib.Path or str')
+    raise TypeError("path must be either pathlib.Path or str")
 
 
 def np_save_npz(path, data=None, **kwargs):
     if len(kwargs) == 0:
         if data is None:
-            raise ValueError('Either data or kwargs must be given')
-        kwargs = {'data': data}
+            raise ValueError("Either data or kwargs must be given")
+        kwargs = {"data": data}
     path = ensure_suffix(path)
     np.savez_compressed(path, **kwargs)
 
@@ -128,32 +128,32 @@ def np_load_data(path, key=None):
     data = np.load(path)
     if key is not None:
         if key not in data:
-            log(f'Given key={key} is not in loaded data on path={path}')
+            log(f"Given key={key} is not in loaded data on path={path}")
         return data[key]
     return data
 
 
 def save_csv(path, rows):
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         csvWriter = csv.writer(f)
         csvWriter.writerows(rows)
 
 
 def print_args(args, ignore_keys=None):
     if ignore_keys is None:
-        ignore_keys = ['self']
+        ignore_keys = ["self"]
     arg_dict = args
     if type(args) is argparse.Namespace:
         arg_dict = vars(args)
     arg_dict = dict((k, v) for k, v in arg_dict.items() if k not in ignore_keys)
     m = max(len(k) for k in arg_dict.keys())
-    log('Running args:')
+    log("Running args:")
     for k, v in arg_dict.items():
         log(f'  {k} {" " * (m - len(k))}: {v}')
 
 
 def simplify_pat_ids(data):
-    return ['-'.join(p.split('-')[:3]) for p in data]
+    return ["-".join(p.split("-")[:3]) for p in data]
 
 
 def get_safe_path_obj(file_path):
@@ -162,7 +162,9 @@ def get_safe_path_obj(file_path):
         if ftype == str:
             return Path(file_path)
         else:
-            raise TypeError(f'Type of file_path must be either str or pathlib.Path but given {ftype}')
+            raise TypeError(
+                f"Type of file_path must be either str or pathlib.Path but given {ftype}"
+            )
     return file_path
 
 
@@ -179,12 +181,12 @@ def str2bool(v):
     """
     if isinstance(v, bool):
         return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+    if v.lower() in ("yes", "true", "t", "y", "1"):
         return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+    elif v.lower() in ("no", "false", "f", "n", "0"):
         return False
     else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+        raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
 def str2path(v):
@@ -201,7 +203,7 @@ def str2path(v):
     try:
         return Path(v)
     except TypeError:
-        raise argparse.ArgumentTypeError('Invalid path provided')
+        raise argparse.ArgumentTypeError("Invalid path provided")
 
 
 def add_to_map_set(s, k, v):

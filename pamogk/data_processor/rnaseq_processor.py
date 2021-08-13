@@ -26,28 +26,32 @@ def process(filename, is_continuous=False, threshold=1.96):
     """
 
     fpath = config.get_safe_data_file(filename)
-    data = pd.read_csv(fpath, sep='\t')
+    data = pd.read_csv(fpath, sep="\t")
     # data = data.set_index(['Gene Name', 'Entrez Gene ID'])
     # data = data.set_index('Entrez Gene ID')
-    data[['gene_name', 'entrez_gene_id']] = data['#probe'].str.split('|', n=1, expand=True)
-    data = data.set_index(['entrez_gene_id'])
-    data = data.drop(columns=['#probe'])
+    data[["gene_name", "entrez_gene_id"]] = data["#probe"].str.split(
+        "|", n=1, expand=True
+    )
+    data = data.set_index(["entrez_gene_id"])
+    data = data.drop(columns=["#probe"])
 
     # IF THERE ARE ADDITIONAL PROBLEMS TO BE CONSIDERED, PREPROCESS THE DATA ACCORDINGLY
     # drop genes with name '?'
-    tmp = data.index[data['gene_name'] == '?']
+    tmp = data.index[data["gene_name"] == "?"]
     data = data.drop(tmp)
 
     # sort the dataframe based on both gene name and patient id
     data = data.sort_index(axis=1)
-    data = data.sort_values('gene_name')
+    data = data.sort_values("gene_name")
 
-    gene_name_map = data['gene_name']
-    data = data.drop(columns=['gene_name'])
+    gene_name_map = data["gene_name"]
+    data = data.drop(columns=["gene_name"])
 
     # delete patients with non-solid tumor
-    tmp = [row[3][0:2] == '01' for row in data.columns.str.split('-').tolist()]
-    ind = [i for i, x in enumerate(tmp) if x == False]  # find the indices of non-solid tumors
+    tmp = [row[3][0:2] == "01" for row in data.columns.str.split("-").tolist()]
+    ind = [
+        i for i, x in enumerate(tmp) if x == False
+    ]  # find the indices of non-solid tumors
     data = data.drop(columns=data.columns[ind])  # drop them from the data frame
 
     # drop the genes which are not expressed more than half of the samples

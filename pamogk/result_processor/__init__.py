@@ -1,1 +1,1 @@
-__all__ = ['label_analysis']
+__all__ = ["label_analysis"]

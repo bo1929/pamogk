@@ -15,37 +15,68 @@ from pamogk import config
 from pamogk.lib.sutils import *
 from pamogk.result_processor.latex_generator import pandas_to_latex_table
 
-example_exp_path = config.DATA_DIR / 'pamogk_kirc' / 'pamogk_exp-Experiment1' / \
-                   'label=th196-smoothing_alpha=0.9-kr_norm=True'
-default_clinical_data_path = config.DATA_DIR / 'kirc_data/kirc_clinical_data.csv'
+example_exp_path = (
+    config.DATA_DIR
+    / "pamogk_kirc"
+    / "pamogk_exp-Experiment1"
+    / "label=th196-smoothing_alpha=0.9-kr_norm=True"
+)
+default_clinical_data_path = config.DATA_DIR / "kirc_data/kirc_clinical_data.csv"
 
 # create the parser with some defaults
-parser = argparse.ArgumentParser(description='Evaluate labels')
-parser.add_argument('--clinical-data', '-c', metavar='file-path', dest='clinical_data_path', type=str2path,
-                    help='Clinical Data', default=default_clinical_data_path)
-parser.add_argument('--show-conf-int', '-ci', dest='show_ci', action='store_true', help='Show Confidence Intervals')
-parser.add_argument('--results-dir', '-r', metavar='directory', dest='results_dir', type=str2path,
-                    help='Experiment Data Dir', default=example_exp_path)
+parser = argparse.ArgumentParser(description="Evaluate labels")
+parser.add_argument(
+    "--clinical-data",
+    "-c",
+    metavar="file-path",
+    dest="clinical_data_path",
+    type=str2path,
+    help="Clinical Data",
+    default=default_clinical_data_path,
+)
+parser.add_argument(
+    "--show-conf-int",
+    "-ci",
+    dest="show_ci",
+    action="store_true",
+    help="Show Confidence Intervals",
+)
+parser.add_argument(
+    "--results-dir",
+    "-r",
+    metavar="directory",
+    dest="results_dir",
+    type=str2path,
+    help="Experiment Data Dir",
+    default=example_exp_path,
+)
 
 args = None
 
 
 class LabelAnalysis(object):
-    def __init__(self, results_dir, show_ci=False, clinical_data_path=default_clinical_data_path, methods=None,
-                 cluster_sizes=None, log2_lambdas=None):
+    def __init__(
+        self,
+        results_dir,
+        show_ci=False,
+        clinical_data_path=default_clinical_data_path,
+        methods=None,
+        cluster_sizes=None,
+        log2_lambdas=None,
+    ):
         if log2_lambdas is None:
             log2_lambdas = list(range(-15, 16, 3))
         if cluster_sizes is None:
             cluster_sizes = list(range(2, 6))
         if methods is None:
-            methods = ['mkkm', 'kmeans']
+            methods = ["mkkm", "kmeans"]
         print_args(locals())
 
         self.res_dir = Path(results_dir)
         self.exp_data_dir = self.res_dir.parent
         self.show_ci = show_ci
-        self.fig_dir = self.res_dir / 'figures'
-        self.exports_path = self.fig_dir / 'exports.json'
+        self.fig_dir = self.res_dir / "figures"
+        self.exports_path = self.fig_dir / "exports.json"
         self.log2_lambdas = log2_lambdas
         self.cluster_sizes = cluster_sizes
         self.methods = methods
@@ -55,11 +86,17 @@ class LabelAnalysis(object):
         clinical_data = self.read_clinical_data(clinical_data_path)
         exp_pat_ids = self.load_exp_patients()
         # this array holds true for patients that have data for the patient at this index
-        self.exp_pats_with_data = np.array([pat_id in clinical_data for pat_id in exp_pat_ids])
+        self.exp_pats_with_data = np.array(
+            [pat_id in clinical_data for pat_id in exp_pat_ids]
+        )
         # these are clinical data for patients with data
         pat_ids = exp_pat_ids[self.exp_pats_with_data]
-        self.clinical_days = np.array([clinical_data[pat_id]['days'] for pat_id in pat_ids]).astype(int)
-        self.clinical_status = np.array([clinical_data[pat_id]['status'] for pat_id in pat_ids]).astype(int)
+        self.clinical_days = np.array(
+            [clinical_data[pat_id]["days"] for pat_id in pat_ids]
+        ).astype(int)
+        self.clinical_status = np.array(
+            [clinical_data[pat_id]["status"] for pat_id in pat_ids]
+        ).astype(int)
         self.exported_files = {}
 
     @timeit
@@ -67,7 +104,7 @@ class LabelAnalysis(object):
         """
         Loads list of intersecting patients from exp data dir
         """
-        with open(self.exp_data_dir / 'patients.csv') as f:
+        with open(self.exp_data_dir / "patients.csv") as f:
             reader = csv.reader(f)
             return np.array([row[0] for row in reader])
 
@@ -83,7 +120,7 @@ class LabelAnalysis(object):
         -------
 
         """
-        return np_load_data(self.res_dir / f'{filename}.npz', key='labels')
+        return np_load_data(self.res_dir / f"{filename}.npz", key="labels")
 
     @timeit
     def read_clinical_data(self, file_loc):
@@ -101,7 +138,9 @@ class LabelAnalysis(object):
         with open(file_loc) as f:
             reader = csv.DictReader(f)
             for row in reader:
-                clinical_data[row['Patient ID']] = dict(status=row['Status'], days=row['Days'])
+                clinical_data[row["Patient ID"]] = dict(
+                    status=row["Status"], days=row["Days"]
+                )
         return clinical_data
 
     def calc_logrank_p_value(self, labels):
@@ -115,7 +154,9 @@ class LabelAnalysis(object):
         -------
 
         """
-        return multivariate_logrank_test(self.clinical_days, labels, self.clinical_status).p_value
+        return multivariate_logrank_test(
+            self.clinical_days, labels, self.clinical_status
+        ).p_value
 
     @timeit
     def km_analysis(self, labels, out_filename):
@@ -137,29 +178,37 @@ class LabelAnalysis(object):
         plt.clf()
 
         ax = plt.subplot(111)
-        ax.set_xlabel('Time (day)')
-        ax.set_ylabel('Survival Probability')
+        ax.set_xlabel("Time (day)")
+        ax.set_ylabel("Survival Probability")
         for label in np.unique(labels):  # get unique cluster labels
-            cluster_pat_ind = labels == label  # store indices of patients in this cluster
+            cluster_pat_ind = (
+                labels == label
+            )  # store indices of patients in this cluster
             days = self.clinical_days[cluster_pat_ind]
             status = self.clinical_status[cluster_pat_ind]
             kmf = KaplanMeierFitter()
-            kmf.fit(days, status, label=f'size={np.sum(cluster_pat_ind)}')
+            kmf.fit(days, status, label=f"size={np.sum(cluster_pat_ind)}")
             # save to be used by others
-            out_path = self.fig_dir / f'{out_filename}-label={label}.npz'
-            np_save_npz(out_path, kmf_prob_func=kmf.survival_function_.values,
-                        kmf_conf_int=kmf.confidence_interval_.values, kmf_timeline=kmf.timeline)
+            out_path = self.fig_dir / f"{out_filename}-label={label}.npz"
+            np_save_npz(
+                out_path,
+                kmf_prob_func=kmf.survival_function_.values,
+                kmf_conf_int=kmf.confidence_interval_.values,
+                kmf_timeline=kmf.timeline,
+            )
             self.add_exported_filepath(out_path)
             kmf.plot(ax=ax, ci_show=self.show_ci)
 
-        out_path = self.fig_dir / f'{out_filename}.png'
+        out_path = self.fig_dir / f"{out_filename}.png"
         plt.savefig(out_path)
         self.add_exported_filepath(out_path)
 
         # all
         all_p = self.calc_logrank_p_value(labels)
         # one vs all
-        vs_p = [f"{self.calc_logrank_p_value(labels == lb):.2e}" for lb in np.unique(labels)]
+        vs_p = [
+            f"{self.calc_logrank_p_value(labels == lb):.2e}" for lb in np.unique(labels)
+        ]
 
         return all_p, vs_p
 
@@ -181,7 +230,7 @@ class LabelAnalysis(object):
         [1]:
             One-vs-All result of log-rank test (array of p values)
         """
-        labels = np_load_data(self.res_dir / f'{filename}.npz', key='labels')
+        labels = np_load_data(self.res_dir / f"{filename}.npz", key="labels")
         # filter out patients that have no data
         labels = labels[self.exp_pats_with_data]
 
@@ -192,18 +241,18 @@ class LabelAnalysis(object):
     def add_exported_filepath(self, path):
         path = Path(path).absolute()
         if not path.exists():
-            ValueError('Tried to add non existing path to exports')
+            ValueError("Tried to add non existing path to exports")
         if path.suffix not in self.exported_files:
             self.exported_files[path.suffix] = []
         self.exported_files[path.suffix].append(str(path))
 
     def df_to_csv(self, df, name):
-        out_path = (self.fig_dir / name).with_suffix('.csv')
+        out_path = (self.fig_dir / name).with_suffix(".csv")
         df.to_csv(out_path)
         self.add_exported_filepath(out_path)
 
-    def df_to_latex_table(self, df, name, row_name='l', col_name='k'):
-        out_path = (self.fig_dir / name).with_suffix('.tex')
+    def df_to_latex_table(self, df, name, row_name="l", col_name="k"):
+        out_path = (self.fig_dir / name).with_suffix(".tex")
         pandas_to_latex_table(df, row_name, col_name, out_path)
         self.add_exported_filepath(out_path)
 
@@ -213,7 +262,7 @@ class LabelAnalysis(object):
         result_inds = log2_lmbds_str.copy()
 
         for method in self.methods:
-            if method != 'mkkm':
+            if method != "mkkm":
                 result_inds.append(method)
 
         result_df = pd.DataFrame(columns=self.cluster_sizes, index=result_inds)
@@ -221,27 +270,33 @@ class LabelAnalysis(object):
         for method in self.methods:
             for label in self.cluster_sizes:
                 # compare dataframe
-                comp_df = pd.DataFrame(columns=list(range(1, label+1)), index=log2_lmbds_str)
-                if method == 'mkkm':
-                    for (log2_lmbd, log2_lmbd_str) in zip(self.log2_lambdas, log2_lmbds_str):
-                        res, vs_res = self.process_label_file(f'pamogk-{method}-k={label}-log2_lambda={log2_lmbd}')
-                        result_df.loc[log2_lmbd_str][label] = f'{res:.2e}'
+                comp_df = pd.DataFrame(
+                    columns=list(range(1, label + 1)), index=log2_lmbds_str
+                )
+                if method == "mkkm":
+                    for (log2_lmbd, log2_lmbd_str) in zip(
+                        self.log2_lambdas, log2_lmbds_str
+                    ):
+                        res, vs_res = self.process_label_file(
+                            f"pamogk-{method}-k={label}-log2_lambda={log2_lmbd}"
+                        )
+                        result_df.loc[log2_lmbd_str][label] = f"{res:.2e}"
                         comp_df.loc[log2_lmbd_str] = vs_res
 
-                    self.df_to_latex_table(comp_df, f'logrank-test-k={label}.tex')
-                    self.df_to_csv(comp_df, f'logrank-test-k={label}')
+                    self.df_to_latex_table(comp_df, f"logrank-test-k={label}.tex")
+                    self.df_to_csv(comp_df, f"logrank-test-k={label}")
                 else:
-                    res, vs_res = self.process_label_file(f'pamogk-{method}-k={label}')
-                    result_df.loc[method][label] = f'{res:.2e}'
+                    res, vs_res = self.process_label_file(f"pamogk-{method}-k={label}")
+                    result_df.loc[method][label] = f"{res:.2e}"
 
-        self.df_to_latex_table(result_df, 'latex_table')
-        self.df_to_csv(result_df, 'multivariate-logrank-test')
-        with open(self.exports_path, 'w') as f:
+        self.df_to_latex_table(result_df, "latex_table")
+        self.df_to_csv(result_df, "multivariate-logrank-test")
+        with open(self.exports_path, "w") as f:
             json.dump(self.exported_files, f)
-        log(f'Finished label analysis with exported files on path={self.exports_path}')
+        log(f"Finished label analysis with exported files on path={self.exports_path}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # if running directly use command line arguments
     args = parser.parse_args()
     LabelAnalysis(**vars(args)).run()

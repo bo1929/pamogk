@@ -1,0 +1,155 @@
+CP_kernels	kernels/center_product_kernel.py	/^def CP_kernels(kms, method=linear_kernel):$/
+Graph	kernels/node2vec_h_i_k.py	/^class Graph:$/
+Graph	kernels/node2vec_h_i.py	/^class Graph():$/
+Graph	lib/node2vec.py	/^class Graph():$/
+KGML_to_networkx_graph	pathway_reader/kgml_converter.py	/^def KGML_to_networkx_graph(pathway_id, is_directed/
+KernelKMeans	lib/kernel_kmeans.py	/^class KernelKMeans(BaseEstimator, ClusterMixin):$/
+LabelAnalysis	result_processor/label_analysis.py	/^class LabelAnalysis(object):$/
+Mkirc_to_rmkl.py	data_processor/kirc_to_rmkl.py	/^def main():$/
+Mlmkkmeans_train.py	kernels/lmkkmeans_train.py	/^def main():$/
+Mmain.py	kernels/main.py	/^def main():$/
+Mpamogk.py	kernels/pamogk.py	/^def main():$/
+Mparadigm_data_prep.py	data_processor/paradigm_data_prep.py	/^def main():$/
+ParadigmDataPrep	data_processor/paradigm_data_prep.py	/^class ParadigmDataPrep(object):$/
+__init__	data_processor/paradigm_data_prep.py	/^    def __init__(self):$/
+__init__	kernels/node2vec_h_i_k.py	/^    def __init__(self, nx_G, is_directed, p, q):$/
+__init__	kernels/node2vec_h_i.py	/^    def __init__(self, nx_G, is_directed, p, q):$/
+__init__	lib/kernel_kmeans.py	/^    def __init__(self, n_clusters=3, max_iter=50, /
+__init__	lib/node2vec.py	/^    def __init__(self, nx_G, is_directed, p, q, de/
+__init__	result_processor/label_analysis.py	/^    def __init__(self, results_dir, show_ci=False,/
+_compute_dist	lib/kernel_kmeans.py	/^    def _compute_dist(self, K, dist, within_distan/
+_get_kernel	lib/kernel_kmeans.py	/^    def _get_kernel(self, X, Y=None):$/
+_get_pathway_child	pathway_reader/cx_pathway_reader.py	/^def _get_pathway_child(pathway_data, key):$/
+_pairwise	lib/kernel_kmeans.py	/^    def _pairwise(self):$/
+add_data_to_patient	data_processor/kirc_to_rmkl.py	/^def add_data_to_patient(key, data, pat_data=None):/
+add_exported_filepath	result_processor/label_analysis.py	/^    def add_exported_filepath(self, path):$/
+add_to_map_list	lib/sutils.py	/^def add_to_map_list(s, k, v):$/
+add_to_map_set	lib/sutils.py	/^def add_to_map_set(s, k, v):$/
+alias_draw	kernels/node2vec_h_i_k.py	/^def alias_draw(J, q):$/
+alias_draw	kernels/node2vec_h_i.py	/^def alias_draw(J, q):$/
+alias_draw	lib/node2vec.py	/^def alias_draw(J, q):$/
+alias_setup	kernels/node2vec_h_i_k.py	/^def alias_setup(probs):$/
+alias_setup	kernels/node2vec_h_i.py	/^def alias_setup(probs):$/
+alias_setup	lib/node2vec.py	/^def alias_setup(probs):$/
+calc_kernel_from_pathways	kernels/new_kernel.py	/^def calc_kernel_from_pathways(neighbor_mappings, p/
+calc_kernel_from_similarity	kernels/new_kernel.py	/^def calc_kernel_from_similarity(similarityMatrix):/
+calc_logrank_p_value	result_processor/label_analysis.py	/^    def calc_logrank_p_value(self, labels):$/
+calc_patientwise_score	kernels/new_kernel.py	/^def calc_patientwise_score(neighbors, patient1, pa/
+calc_similarity_from_pathway	kernels/new_kernel.py	/^def calc_similarity_from_pathway(neighbors, patien/
+calculate_S_and_P	kernels/center_product_kernel.py	/^def calculate_S_and_P(patients, gene_vectors, uni_/
+calculate_localized_kernel_theta	kernels/lmkkmeans_train.py	/^def calculate_localized_kernel_theta(K, Theta):$/
+calculate_s_and_max_sd	kernels/pairwise_product_max_kernel.py	/^def calculate_s_and_max_sd(patients, gene_vectors)/
+call_mosek	kernels/lmkkmeans_train.py	/^def call_mosek(qsubi, qsubj, qval, N, P):$/
+can_add_relation	pathway_reader/kgml_pathway_reader.py	/^def can_add_relation(s, d, relations, new_relation/
+change_log_path	lib/sutils.py	/^def change_log_path(path):$/
+cln	pathway_reader/cx_pathway_reader.py	/^    def cln(_n):$/
+df_to_csv	result_processor/label_analysis.py	/^    def df_to_csv(self, df, name):$/
+df_to_latex_table	result_processor/label_analysis.py	/^    def df_to_latex_table(self, df, name, row_name/
+eliminate_with_conf	kernels/new_kernel.py	/^def eliminate_with_conf(walk, conf, nodes):$/
+ensure_file_dir	lib/sutils.py	/^def ensure_file_dir(file_path: Path):$/
+ensure_suffix	lib/sutils.py	/^def ensure_suffix(path, suffix='.npz'):$/
+fetch_uniprot_mapping	gene_mapper/uniprot_mapper.py	/^def fetch_uniprot_mapping(alias_list, fr='ACC,ID',/
+fetch_uniprot_to_entrez	gene_mapper/uniprot_mapper.py	/^def fetch_uniprot_to_entrez(alias_list):$/
+find_intersection_lists	data_processor/paradigm_data_prep.py	/^    def find_intersection_lists(list1, list2, list/
+find_intersection_patients	data_processor/paradigm_data_prep.py	/^    def find_intersection_patients(self, rs_GE, rs/
+find_pathways_for_all_patients	data_processor/kirc_to_vec.py	/^def find_pathways_for_all_patients():$/
+fit	lib/kernel_kmeans.py	/^    def fit(self, X, y=None, sample_weight=None):$/
+get_alias_edge	kernels/node2vec_h_i_k.py	/^    def get_alias_edge(self, src, dst):$/
+get_alias_edge	kernels/node2vec_h_i.py	/^    def get_alias_edge(self, src, dst):$/
+get_alias_edge	lib/node2vec.py	/^    def get_alias_edge(self, src, dst):$/
+get_alias_set	gene_mapper/uniprot_mapper.py	/^def get_alias_set(all_pws_map):$/
+get_all_nodes	gene_mapper/uniprot_mapper.py	/^def get_all_nodes(all_pws_map):$/
+get_all_pathways	pathway_reader/kgml_pathway_reader.py	/^def get_all_pathways(force=False):$/
+get_all_pws_paradigm	pathway_reader/cx_pathway_reader.py	/^def get_all_pws_paradigm():$/
+get_entrez_data	data_processor/synapse_rppa_processor.py	/^def get_entrez_data():$/
+get_n2v_representations	data_processor/kirc_to_vec.py	/^def get_n2v_representations():$/
+get_neighbors_for_all_pathways	kernels/new_kernel.py	/^def get_neighbors_for_all_pathways(all_pw_map, con/
+get_neighbors_in_pathway	kernels/new_kernel.py	/^def get_neighbors_in_pathway(pw_graph, conf):$/
+get_non_alias_set	gene_mapper/uniprot_mapper.py	/^def get_non_alias_set(all_pws_map):$/
+get_pathway_kgml	pathway_reader/kgml_pathway_reader.py	/^def get_pathway_kgml(pathway_id='hsa04151'):$/
+get_pathway_map	pathway_reader/cx_pathway_reader.py	/^def get_pathway_map():$/
+get_pathways_with_genes	pathway_reader/cx_pathway_reader.py	/^def get_pathways_with_genes(pathways, genes):$/
+get_patient_pathways_from_file	data_processor/kirc_to_vec.py	/^def get_patient_pathways_from_file():$/
+get_patient_uniprots_from_file	data_processor/kirc_to_vec.py	/^def get_patient_uniprots_from_file():$/
+get_safe_path_obj	lib/sutils.py	/^def get_safe_path_obj(file_path):$/
+get_uniprot_to_entrez_map	gene_mapper/uniprot_mapper.py	/^def get_uniprot_to_entrez_map(all_pws_map=None):$/
+initialize_node2vec	lib/get_node2vec.py	/^def initialize_node2vec():$/
+isPSD	kernels/new_kernel.py	/^def isPSD(A, tol=1e-8):$/
+json_to_dict	gene_mapper/uniprot_mapper.py	/^def json_to_dict():$/
+kernel	kernels/pamogk.py	/^def kernel(pat_ids, pathway, label_key, alpha=0.5,/
+km_analysis	result_processor/label_analysis.py	/^    def km_analysis(self, labels, out_filename):$/
+learn_embeddings	kernels/main.py	/^def learn_embeddings(walks):$/
+lmkkmeans_train	kernels/lmkkmeans_train.py	/^def lmkkmeans_train(Km, iteration_count=2, cluster/
+load_exp_patients	result_processor/label_analysis.py	/^    def load_exp_patients(self):$/
+load_kernel	kernels/new_kernel.py	/^def load_kernel(file_loc):$/
+log	lib/sutils.py	/^def log(*args, **kwargs):$/
+logr	lib/sutils.py	/^def logr(*args, **kwargs):$/
+map_eg_id	data_processor/synapse_rppa_processor.py	/^    def map_eg_id(src):$/
+max_sd_kernel	kernels/pairwise_product_max_kernel.py	/^def max_sd_kernel(p1, p2):$/
+node2vec_walk	kernels/node2vec_h_i_k.py	/^    def node2vec_walk(self, walk_length, start_nod/
+node2vec_walk	kernels/node2vec_h_i.py	/^    def node2vec_walk(self, walk_length, start_nod/
+node2vec_walk	lib/node2vec.py	/^    def node2vec_walk(self, walk_length, start_nod/
+normalize_kernel_matrix	kernels/pamogk.py	/^def normalize_kernel_matrix(km):$/
+np_load_data	lib/sutils.py	/^def np_load_data(path, key=None):$/
+np_save_npz	lib/sutils.py	/^def np_save_npz(path, data=None, **kwargs):$/
+pandas_to_latex_table	result_processor/latex_generator.py	/^def pandas_to_latex_table(df, row_name, col_name, /
+parse_args	kernels/main.py	/^def parse_args():$/
+patient_entrez_to_uniprot	data_processor/kirc_to_vec.py	/^def patient_entrez_to_uniprot():$/
+predict	lib/kernel_kmeans.py	/^    def predict(self, X):$/
+preprocess_patient_data	kernels/new_kernel.py	/^def preprocess_patient_data(patients):$/
+preprocess_seq_patient_data	data_processor/paradigm_data_prep.py	/^    def preprocess_seq_patient_data(self, GE, all_/
+preprocess_som_patient_data	data_processor/paradigm_data_prep.py	/^    def preprocess_som_patient_data(self, patients/
+preprocess_transition_probs	kernels/node2vec_h_i_k.py	/^    def preprocess_transition_probs(self):$/
+preprocess_transition_probs	kernels/node2vec_h_i.py	/^    def preprocess_transition_probs(self):$/
+preprocess_transition_probs	lib/node2vec.py	/^    def preprocess_transition_probs(self):$/
+print_args	lib/sutils.py	/^def print_args(args, ignore_keys=None):$/
+print_report	data_processor/synapse_clinical_processor.py	/^def print_report(report):$/
+print_report	data_processor/synapse_som_processor.py	/^def print_report(report):$/
+process	data_processor/node2vec_processor.py	/^def process(nx_g, args, gene_vec_conv=lambda x: x)/
+process	data_processor/rnaseq_processor.py	/^def process(filename, is_continuous=False, thresho/
+process	data_processor/synapse_rppa_processor.py	/^def process(filename, is_continuous=False, thresho/
+process_and_save_all	data_processor/synapse_som_processor.py	/^def process_and_save_all():$/
+process_and_save_cancer	data_processor/synapse_som_processor.py	/^def process_and_save_cancer(cancer_type='BRCA', da/
+process_label_file	result_processor/label_analysis.py	/^    def process_label_file(self, filename):$/
+process_one_cancer_somatic	data_processor/synapse_som_processor.py	/^def process_one_cancer_somatic(filepath, delimiter/
+process_one_clinical_somatic	data_processor/synapse_clinical_processor.py	/^def process_one_clinical_somatic(filepath, delimit/
+process_walks	kernels/new_kernel.py	/^def process_walks(walks, conf, nodes):$/
+prune_kgml	pathway_reader/kgml_pathway_reader.py	/^def prune_kgml(pathway):$/
+prune_proteins	data_processor/synapse_rppa_processor.py	/^def prune_proteins(data):$/
+read_clinical_data	result_processor/label_analysis.py	/^    def read_clinical_data(self, file_loc):$/
+read_csv	data_processor/kirc_to_rmkl.py	/^def read_csv(filename, delimiter=','):$/
+read_csv	data_processor/synapse_rppa_processor.py	/^def read_csv(path, has_header=False, delimiter=','/
+read_data	kernels/new_kernel.py	/^def read_data():$/
+read_graph	kernels/main.py	/^def read_graph():$/
+read_label_data	result_processor/label_analysis.py	/^    def read_label_data(self, filename):$/
+read_pathways	kernels/new_kernel.py	/^def read_pathways():$/
+read_pathways	pathway_reader/cx_pathway_reader.py	/^def read_pathways():$/
+read_processed_data	data_processor/synapse_som_processor.py	/^def read_processed_data():$/
+read_rnaseq_data	data_processor/paradigm_data_prep.py	/^    def read_rnaseq_data(self):$/
+read_rppa_data	data_processor/paradigm_data_prep.py	/^    def read_rppa_data(self):$/
+read_single_pathway	pathway_reader/cx_pathway_reader.py	/^def read_single_pathway(pathway_id, reading_all=Fa/
+read_som_data	data_processor/paradigm_data_prep.py	/^    def read_som_data(self):$/
+report_all_cancer_types	data_processor/synapse_clinical_processor.py	/^def report_all_cancer_types(dir_path):$/
+report_all_cancer_types	data_processor/synapse_som_processor.py	/^def report_all_cancer_types(data_dir):$/
+run	result_processor/label_analysis.py	/^    def run(self):$/
+safe_create_dir	lib/sutils.py	/^def safe_create_dir(d: Path):$/
+safe_list_value_append	gene_mapper/uniprot_mapper.py	/^def safe_list_value_append(d, k, v):$/
+save_csv	lib/sutils.py	/^def save_csv(path, rows):$/
+save_data	data_processor/paradigm_data_prep.py	/^    def save_data(self, fname, data, pat_ids, uni_/
+simplify_pat_ids	lib/sutils.py	/^def simplify_pat_ids(data):$/
+simulate_walks	kernels/node2vec_h_i_k.py	/^    def simulate_walks(self, num_walks, walk_lengt/
+simulate_walks	kernels/node2vec_h_i.py	/^    def simulate_walks(self, num_walks, walk_lengt/
+simulate_walks	lib/node2vec.py	/^    def simulate_walks(self, num_walks, walk_lengt/
+smooth	kernels/pamogk.py	/^def smooth(md, adj_m, alpha=0.5, epsilon=10 ** -6)/
+str2bool	lib/sutils.py	/^def str2bool(v):$/
+str2path	lib/sutils.py	/^def str2path(v):$/
+streamprinter	kernels/lmkkmeans_train.py	/^def streamprinter(text):$/
+test_accr	kernels/center_product_kernel.py	/^def test_accr(patients):$/
+test_accr	kernels/pairwise_product_max_kernel.py	/^def test_accr(patients):$/
+timeit	lib/sutils.py	/^def timeit(f):$/
+transpose_data	data_processor/kirc_to_rmkl.py	/^def transpose_data(data, id_col, ignored_cols=None/
+wrapper	lib/sutils.py	/^    def wrapper(*args, **kwargs):$/
+write_csv	data_processor/kirc_to_rmkl.py	/^def write_csv(data, key, pat_ids, use_index=False)/
+write_pat_id_map	data_processor/kirc_to_rmkl.py	/^def write_pat_id_map(full_pat_ids):$/
+write_to_file	data_processor/synapse_clinical_processor.py	/^def write_to_file(report, filepath):$/
+write_to_file	data_processor/synapse_som_processor.py	/^def write_to_file(report, filepath):$/

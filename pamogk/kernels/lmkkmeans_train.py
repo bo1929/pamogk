@@ -10,7 +10,9 @@ from sklearn.cluster import KMeans
 
 def lmkkmeans_train(Km, iteration_count=2, cluster_count=10):
     if iteration_count < 1:
-        raise ValueError(f'iteration_count cannot be non positive give: {iteration_count}')
+        raise ValueError(
+            f"iteration_count cannot be non positive give: {iteration_count}"
+        )
     N = Km.shape[1]
     P = Km.shape[0]
     Theta = np.zeros((N, P))
@@ -47,12 +49,14 @@ def lmkkmeans_train(Km, iteration_count=2, cluster_count=10):
         print()
 
     if H is None:
-        raise ValueError('No iterations completed causing H to be invalid')
+        raise ValueError("No iterations completed causing H to be invalid")
     # normalize vector lengths
     tempH = np.linalg.norm(H, axis=1, keepdims=True)
     tempH[tempH == 0] = 1
     H_normalized = H / tempH
-    clustering = KMeans(n_clusters=cluster_count, max_iter=1000).fit_predict(H_normalized)
+    clustering = KMeans(n_clusters=cluster_count, max_iter=1000).fit_predict(
+        H_normalized
+    )
     return clustering, H_normalized
 
 
@@ -100,10 +104,12 @@ def call_mosek(qsubi, qsubj, qval, N, P):
                 # blx[j] <= x_j <= bux[j]
                 task.putvarbound(j, bkx[j], blx[j], bux[j])
                 # Input column j of A
-                task.putacol(j,  # Variable (column) index.
-                             # Row index of non-zeros in column j.
-                             asub[j],
-                             aval[j])  # Non-zero Values of column j.
+                task.putacol(
+                    j,  # Variable (column) index.
+                    # Row index of non-zeros in column j.
+                    asub[j],
+                    aval[j],
+                )  # Non-zero Values of column j.
             for i in range(numcon):
                 task.putconbound(i, bkc[i], blc[i], buc[i])
             # Set up and input quadratic objective
@@ -118,7 +124,7 @@ def call_mosek(qsubi, qsubj, qval, N, P):
             # prosta = task.getprosta(mosek.soltype.itr)
             # solsta = task.getsolsta(mosek.soltype.itr)
             # Output a solution
-            xx = [0.] * numvar
+            xx = [0.0] * numvar
             task.getxx(mosek.soltype.itr, xx)
             return xx
 
@@ -146,5 +152,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

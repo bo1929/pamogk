@@ -8,9 +8,16 @@ from ..kernels import node2vec_h_i_k as n2v
 from ..lib.sutils import *
 from ..pathway_reader import cx_pathway_reader as cx_pw
 
-parser = argparse.ArgumentParser(description='Run SPK algorithms on pathways')
-parser.add_argument('--patient-data', '-f', metavar='file-path', dest='patient_data', type=str2path, help='pathway ID list',
-                    default=config.DATA_DIR / 'kirc_data/kirc_somatic_mutation_data.csv')
+parser = argparse.ArgumentParser(description="Run SPK algorithms on pathways")
+parser.add_argument(
+    "--patient-data",
+    "-f",
+    metavar="file-path",
+    dest="patient_data",
+    type=str2path,
+    help="pathway ID list",
+    default=config.DATA_DIR / "kirc_data/kirc_somatic_mutation_data.csv",
+)
 
 args = parser.parse_args()
 print_args(args)
@@ -28,8 +35,8 @@ def read_data():
     with open(args.patient_data) as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            pat_id = row['Patient ID']
-            ent_id = row['Entrez Gene ID']
+            pat_id = row["Patient ID"]
+            ent_id = row["Entrez Gene ID"]
             if pat_id not in patients:
                 patients[pat_id] = {ent_id}
             else:
@@ -50,14 +57,16 @@ def preprocess_patient_data(patients):
         uni_ids = [uid for eid in ent_ids if eid in ent2uni for uid in ent2uni[eid]]
         # if there are any matches map them
         if len(uni_ids) > 0:
-            res.append({
-                'pat_id': pat_id,
-                'mutated_nodes': uni_ids,
-            })
+            res.append(
+                {
+                    "pat_id": pat_id,
+                    "mutated_nodes": uni_ids,
+                }
+            )
         else:
             num_empty += 1
 
-    log('removed patients:', num_empty)
+    log("removed patients:", num_empty)
 
     return res
 
@@ -160,7 +169,9 @@ def calc_similarity_from_pathway(neighbors, patients, id_mapper):
     similarityMatrix = np.zeros((len_p, len_p))
     for i in range(len_p):
         for j in range(i, len_p):
-            score = calc_patientwise_score(neighbors, patients[i], patients[j], id_mapper)
+            score = calc_patientwise_score(
+                neighbors, patients[i], patients[j], id_mapper
+            )
             if i == j and score != 1:
                 similarityMatrix[i, j] = 1
             else:
@@ -185,7 +196,9 @@ def calc_kernel_from_pathways(neighbor_mappings, patients, id_mapper):
     flag = 0
     len_p = len(patients)
     for pathway_id in neighbor_mappings.keys():
-        similarityMatrix = calc_similarity_from_pathway(neighbor_mappings[pathway_id], patients, id_mapper[pathway_id])
+        similarityMatrix = calc_similarity_from_pathway(
+            neighbor_mappings[pathway_id], patients, id_mapper[pathway_id]
+        )
         one_kernel = calc_kernel_from_similarity(similarityMatrix)
         if flag == 0:
             kernel_res = one_kernel

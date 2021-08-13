@@ -21,9 +21,19 @@ class KernelKMeans(BaseEstimator, ClusterMixin):
     KDD 2004.
     """
 
-    def __init__(self, n_clusters=3, max_iter=50, tol=1e-3, random_state=None,
-                 kernel="linear", gamma=None, degree=3, coef0=1,
-                 kernel_params=None, verbose=0):
+    def __init__(
+        self,
+        n_clusters=3,
+        max_iter=50,
+        tol=1e-3,
+        random_state=None,
+        kernel="linear",
+        gamma=None,
+        degree=3,
+        coef0=1,
+        kernel_params=None,
+        verbose=0,
+    ):
         self.n_clusters = n_clusters
         self.max_iter = max_iter
         self.tol = tol
@@ -70,8 +80,7 @@ class KernelKMeans(BaseEstimator, ClusterMixin):
 
         for it in range(self.max_iter):
             dist.fill(0)
-            self._compute_dist(K, dist, self.within_distances_,
-                               update_within=True)
+            self._compute_dist(K, dist, self.within_distances_, update_within=True)
             labels_old = self.labels_
             self.labels_ = dist.argmin(axis=1)
 
@@ -115,12 +124,11 @@ class KernelKMeans(BaseEstimator, ClusterMixin):
         K = self._get_kernel(X, self.X_fit_)
         n_samples = X.shape[0]
         dist = np.zeros((n_samples, self.n_clusters))
-        self._compute_dist(K, dist, self.within_distances_,
-                           update_within=False)
+        self._compute_dist(K, dist, self.within_distances_, update_within=False)
         return dist.argmin(axis=1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from sklearn.datasets import make_blobs
 
     X, y = make_blobs(n_samples=1000, centers=5, random_state=0)
