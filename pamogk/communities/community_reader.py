@@ -10,7 +10,7 @@ from ..lib.sutils import *
 
 
 DATA_ROOT = config.DATA_DIR / "communities"
-COMM_PRE = "Bigclam_HPA-PROTEIN-KIDNEY"
+COMM_PRE = "Demon_PROTEIN-KIDNEY-03"
 COMM_MAP = f"{COMM_PRE}_comm_map.json"
 COMM_LIST_PATH = DATA_ROOT / COMM_MAP
 safe_create_dir(DATA_ROOT)
@@ -39,8 +39,7 @@ def read_communities():
     for (ind, comm_id) in enumerate(comm_ids):
         log(f"Processing community {ind + 1:3}/{len(comm_ids)}", end="\t")
         comm_data = read_single_community(comm_id, reading_all=True)
-        if len(comm_data.nodes) < 300:
-            comm_map[comm_id] = comm_data
+        comm_map[comm_id] = comm_data
     log()
     return comm_map
 

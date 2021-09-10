@@ -9,8 +9,8 @@ from ..lib.sutils import *
 from pamogk.gene_mapper import uniprot_mapper
 
 DATA_ROOT = config.DATA_DIR / "communities"
-DETECTION_ALGORITHM = "Bigclam"
-COMM_TYPE = "HPA-PROTEIN-KIDNEY"
+DETECTION_ALGORITHM = "Demon"
+COMM_TYPE = "PROTEIN-KIDNEY-03"
 COMM_PATH = DATA_ROOT / DETECTION_ALGORITHM / COMM_TYPE
 COMM_NAME = f"{DETECTION_ALGORITHM}_{COMM_TYPE}"
 safe_create_dir(DATA_ROOT)
@@ -23,7 +23,7 @@ def read_communities_from_txt():
 
     hg = lambda x: list(map(int, x.strip().split('\t')))
 
-    with open(COMM_PATH / "community_list.txt" ) as f:
+    with open(COMM_PATH / "communities.txt" ) as f:
         content = f.readlines()
         communities = [hg(x) for x in content] 
 
@@ -35,15 +35,15 @@ def read_communities_from_txt():
         content = f.readlines()
         nodes = [hg(x) for x in content] 
 
-    with open(COMM_PATH / "prioritization.txt" ) as f:
-        content = list(f.readlines())
-        misc = [x.strip().split('\t') for x in content] 
-        misc_attr = coll.defaultdict(list)
-        for i in range(1, len(misc)):
-            tmp_dict = {}
-            for j, key in enumerate(misc[0]):
-                tmp_dict[key] = misc[i][j]
-            misc_attr[i] = tmp_dict
+    misc_attr = coll.defaultdict(list)
+    ## with open(COMM_PATH / "prioritization.txt" ) as f:
+    ##     content = list(f.readlines())
+    ##     misc = [x.strip().split('\t') for x in content] 
+    ##     for i in range(1, len(misc)):
+    ##         tmp_dict = {}
+    ##         for j, key in enumerate(misc[0]):
+    ##             tmp_dict[key] = misc[i][j]
+    ##         misc_attr[i] = tmp_dict
     comm_all = {"communities":communities, "nodes":nodes, "edges":edges, "attr":misc_attr}
     return comm_all
 
