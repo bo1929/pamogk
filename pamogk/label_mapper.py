@@ -44,16 +44,13 @@ def mark_label_on_communities(name, pid, comm_map, gene_id_list, label=1):
     """
     label_field = f"label-{name}"
     gene_ids = [eid for a in gene_id_list for eid in a]
-    ## print(gene_ids)
-    for comm in comm_map.values():  # for each pathway
+    for comm in comm_map.values():
         for n in comm.nodes():
             nd = comm.nodes[n]
-            ## print("nd", nd)
             if label_field not in nd:
                 comm.add_node(n, **{label_field: {}})
             if np.any([int(g) in nd["entrezids"] for g in gene_ids]):
                 nd[label_field][pid] = label
-            ## print("nd", nd)
 
 
 def mark_cont_label_on_pathways(name, pid, comm_map, uni_ids, gene_vals):
@@ -72,8 +69,7 @@ def mark_cont_label_on_pathways(name, pid, comm_map, uni_ids, gene_vals):
             the values of genes which will be assigned to found genes in pathways
     """
     label_field = f"label-{name}"
-    # gene_ids = uni_ids #[uid for a in gene_id_list for uid in a]
-    for pw in comm_map.values():  # for each pathway
+    for pw in comm_map.values():
         for n in pw.nodes():
             nd = pw.nodes[n]
             if label_field not in nd:
@@ -109,17 +105,18 @@ def mark_cont_label_on_communities(name, pid, comm_map, entrez_ids, gene_vals):
             the values of genes which will be assigned to found genes in pathways
     """
     label_field = f"label-{name}"
-    # gene_ids = entrez_ids #[uid for a in gene_id_list for uid in a]
-    for comm in comm_map.values():  # for each pathway
+    for comm in comm_map.values():
         for n in comm.nodes():
             nd = comm.nodes[n]
             if label_field not in nd:
                 comm.add_node(n, **{label_field: {}})
             intersect_values = gene_vals[
-                [len(set(nd["entrezids"]).intersection(g)) > 0 for g in entrez_ids]
+                [
+                    len(set(nd["entrezids"]).intersection([int(g)])) > 0
+                    for g in entrez_ids
+                ]
             ]
             if len(intersect_values) > 0:
-                print(len(intersect_values))
                 if "oe" in name:
                     nd[label_field][pid] = max(0, max(intersect_values))
                 elif "ue" in name:
@@ -148,8 +145,8 @@ def mark_extra_label_on_pathways(name, pid, pw_map, old_label_name, threshold=1.
     """
     label_field = f"label-{name}"
     old_label_field = f"label-{old_label_name}"
-    oe_label_field = f"label-oe"
-    ue_label_field = f"label-ue"
+    oe_label_field = "label-oe"
+    ue_label_field = "label-ue"
     for pw in pw_map.values():  # for each pathway
         for n in pw.nodes():
             nd = pw.nodes[n]
@@ -190,8 +187,8 @@ def mark_extra_label_on_communities(
     """
     label_field = f"label-{name}"
     old_label_field = f"label-{old_label_name}"
-    oe_label_field = f"label-oe"
-    ue_label_field = f"label-ue"
+    oe_label_field = "label-oe"
+    ue_label_field = "label-ue"
     for comm in comm_map.values():  # for each community
         for n in comm.nodes():
             nd = comm.nodes[n]

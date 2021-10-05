@@ -7,8 +7,8 @@
 #SBATCH --qos=long_mdbf
 #SBATCH --partition=long_mdbf
 #SBATCH --time=23:59:00
-#SBATCH --output=/cta/users/aosman/pamogk/experiments/out.out
+#SBATCH --output=./experiments/out.out
 #SBATCH --mem=32G
 
 # Set stack size to unlimited
-python /cta/users/aosman/pamogk/experiments/pamogk_exp_comm.py > outlog.out
+python ./pamogk_exp_comm.py > outlog.out

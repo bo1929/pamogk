@@ -160,15 +160,20 @@ class Experiment1(object):
             / f"pamogk-som-expressed-comm_id={comm_id}.gpickle"
         )
 
-
     def rnaseq_communities_save_valid(self, all_comm_map):
-        return np.all([self.get_rnaseq_comm_path(comm_id).exists() for comm_id in all_comm_map])
+        return np.all(
+            [self.get_rnaseq_comm_path(comm_id).exists() for comm_id in all_comm_map]
+        )
 
     def rppa_communities_save_valid(self, all_comm_map):
-        return np.all([self.get_rppa_comm_path(comm_id).exists() for comm_id in all_comm_map])
+        return np.all(
+            [self.get_rppa_comm_path(comm_id).exists() for comm_id in all_comm_map]
+        )
 
     def som_communities_save_valid(self, all_comm_map):
-        return np.all([self.get_som_comm_path(comm_id).exists() for comm_id in all_comm_map])
+        return np.all(
+            [self.get_som_comm_path(comm_id).exists() for comm_id in all_comm_map]
+        )
 
     @timeit
     def restore_rnaseq_communities(self, all_comm_map):
@@ -202,7 +207,9 @@ class Experiment1(object):
         res_comm_map = collections.OrderedDict()
         for ind, comm_id in enumerate(all_comm_map.keys()):
             path = self.get_som_comm_path(comm_id)
-            logr(f"Loading somatic mutation data {ind + 1:3}/{num_comm} comm_id={comm_id}")
+            logr(
+                f"Loading somatic mutation data {ind + 1:3}/{num_comm} comm_id={comm_id}"
+            )
             res_comm_map[comm_id] = nx.read_gpickle(path)
         log()
         return res_comm_map
@@ -234,9 +241,12 @@ class Experiment1(object):
         num_comm = len(all_comm_map)
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):
             path = self.get_som_comm_path(comm_id)
-            logr(f"Saving somatic mutation data {ind + 1:3}/{num_comm} comm_id={comm_id}")
+            logr(
+                f"Saving somatic mutation data {ind + 1:3}/{num_comm} comm_id={comm_id}"
+            )
             nx.write_gpickle(comm, path)
         log()
+
     @timeit
     def read_rnaseq_data(self):
         # Real Data #
@@ -246,7 +256,6 @@ class Experiment1(object):
             self.args.rnaseq_patient_data, self.args.continuous, self.args.threshold
         )
 
-        # convert entrez gene id to uniprot id
         pat_ids = gene_exp.columns.values  # patient TCGA ids
         ent_ids = gene_exp.index.values  # gene entrez ids
         return gene_exp.values, pat_ids, ent_ids
@@ -260,7 +269,6 @@ class Experiment1(object):
             self.args.rppa_patient_data, self.args.continuous, self.args.threshold
         )
 
-        # convert entrez gene id to uniprot id
         pat_ids = gene_exp.columns.values  # patient TCGA ids
         ent_ids = gene_exp.index.values  # gene entrez ids
         return gene_exp.values, pat_ids, ent_ids
@@ -319,7 +327,6 @@ class Experiment1(object):
 
         return rs_GE, rs_pat, rp_GE, rp_pat, som_pat
 
-
     @timeit
     def preprocess_som_patient_data(self, patients):
         res = []
@@ -330,7 +337,6 @@ class Experiment1(object):
                     "mutated_nodes": ent_ids,
                 }
             )
-
         return res
 
     @timeit
@@ -387,7 +393,7 @@ class Experiment1(object):
                 gene_ind = (
                     GE[..., pat_ids == pid] == 1
                 ).flatten()  # over expressed genes
-                genes = ent_ids[gene_ind]  # get uniprot gene ids from indices
+                genes = ent_ids[gene_ind]
                 label_mapper.mark_label_on_communities(
                     "oe", pid, all_comm_map, genes, self.label
                 )
@@ -398,7 +404,7 @@ class Experiment1(object):
                 gene_ind = (
                     GE[..., pat_ids == pid] == -1
                 ).flatten()  # under expressed genes
-                genes = ent_ids[gene_ind]  # get uniprot gene ids from indices
+                genes = ent_ids[gene_ind]
                 label_mapper.mark_label_on_communities(
                     "ue", pid, all_comm_map, genes, self.label
                 )
@@ -420,7 +426,7 @@ class Experiment1(object):
         GE: :obj:`numpy.ndarray`
             Gene expression data array in shape of genes by patients
         ent_ids: :obj:`numpy.ndarray`
-            mapping from uniprot to gene
+            mapping from entrez to gene
         """
         # check if we already stored all over/under expression pathway data if so restore them
         if self.rppa_communities_save_valid(all_comm_map):
@@ -469,7 +475,7 @@ class Experiment1(object):
                 gene_ind = (
                     GE[..., pat_ids == pid] == -1
                 ).flatten()  # under expressed genes
-                genes = ent_ids[gene_ind] 
+                genes = ent_ids[gene_ind]
                 label_mapper.mark_label_on_communities(
                     "ue", pid, all_comm_map, genes, self.label
                 )
@@ -520,11 +526,8 @@ class Experiment1(object):
             if kms_path.exists():
                 return np_load_data(kms_path, key="kms")
         # calculate kernel matrices for over expressed genes
-        bound=num_comm
-        over_exp_kms = np.zeros((bound, num_pat, num_pat))
+        over_exp_kms = np.zeros((num_comm, num_pat, num_pat))
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
-            if ind >=bound:
-                break
             over_exp_kms[ind] = kernel(
                 pat_ids,
                 comm,
@@ -564,15 +567,14 @@ class Experiment1(object):
         num_comm = len(all_comm_map)
         kms_path = self.kernel_dir / "som-kms.npz"
         if kms_path.exists():
-           return np_load_data(kms_path, key="kms")
+            return np_load_data(kms_path, key="kms")
         # calculate kernel matrices for over expressed genes
-        bound = num_comm
-        kms = np.zeros((bound, num_pat, num_pat))
+        kms = np.zeros((num_comm, num_pat, num_pat))
         pat_ids = np.array([pat["pat_id"] for pat in patients])
-        all_comm_map = collections.OrderedDict(sorted(all_comm_map.items(), key= lambda x: len(x[1].nodes)))
+        all_comm_map = collections.OrderedDict(
+            sorted(all_comm_map.items(), key=lambda x: len(x[1].nodes))
+        )
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
-            if ind >= bound:
-                break
             kms[ind] = kernel(
                 pat_ids,
                 comm,
@@ -667,7 +669,6 @@ class Experiment1(object):
         else:
             return self.cluster_discrete(kernels, n_clusters)
 
-
     @timeit
     def run_preprocess(self, rs_GE, rp_GE, rs_ent_ids, rp_ent_ids, som_patients):
         som_patients = self.preprocess_som_patient_data(som_patients)
@@ -698,8 +699,8 @@ class Experiment1(object):
         )
 
         all_rs_comm_map = self.read_comm()
-        all_rp_comm_map = copy.deepcopy(all_rs_comm_map)
-        all_som_comm_map = copy.deepcopy(all_rs_comm_map)
+        all_rp_comm_map = self.read_comm()
+        all_som_comm_map = self.read_comm()
 
     @timeit
     def run(self):
@@ -725,8 +726,8 @@ class Experiment1(object):
         )
 
         all_rs_comm_map = self.read_comm()
-        all_rp_comm_map = copy.deepcopy(all_rs_comm_map)
-        all_som_comm_map = copy.deepcopy(all_rs_comm_map)
+        all_rp_comm_map = self.read_comm()
+        all_som_comm_map = self.read_comm()
 
         # Kernel part
         # RnaSeq Data
@@ -753,7 +754,6 @@ class Experiment1(object):
         som_kernels = self.create_som_kernels(labeled_all_som_comm_map, som_patients)
 
         kernels = np.concatenate((rs_kernels, rp_kernels, som_kernels))
-        ##kernels = np.concatenate((rp_kernels, som_kernels))
         total = kernels.shape[1] * kernels.shape[2]
         limit = (self.drop_percent * total) / 100.0
         valid_kernels = kernels[np.count_nonzero(kernels, axis=(1, 2)) >= limit]

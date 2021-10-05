@@ -10,7 +10,7 @@ from ..lib.sutils import *
 
 
 DATA_ROOT = config.DATA_DIR / "communities"
-COMM_PRE = "Demon_PROTEIN-KIDNEY-03"
+COMM_PRE = "Demon_Protein-Kidney"
 COMM_MAP = f"{COMM_PRE}_comm_map.json"
 COMM_LIST_PATH = DATA_ROOT / COMM_MAP
 safe_create_dir(DATA_ROOT)
@@ -18,9 +18,7 @@ safe_create_dir(DATA_ROOT)
 
 def get_community_map():
     if not COMM_LIST_PATH.exists():
-        raise ValueError(
-            "Given community list cant be found in the given path!"
-        )
+        raise ValueError("Given community list cant be found in the given path!")
 
     community_list = json.load(open(COMM_LIST_PATH))
 
@@ -81,9 +79,8 @@ def read_single_community(community_id, reading_all=False):
     for eid in edges.keys():
         e = edges[eid]
         ## attrs = {}
-        G.add_edge(int(e["s"]), int(e["t"])) ## , **attrs)
+        G.add_edge(int(e["s"]), int(e["t"]))  ## , **attrs)
     return G
-
 
 
 if __name__ == "__main__":

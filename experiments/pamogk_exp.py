@@ -271,7 +271,6 @@ class Experiment1(object):
         res = []
         num_empty = 0
         for pat_id, ent_ids in patients.items():
-            # uni_ids = [uid for eid in ent_ids if eid in ent2uni for uid in ent2uni[eid]]
             uni_ids = [uid for eid in ent_ids if eid in ent2uni for uid in ent2uni[eid]]
             # if there are any matches map them
             res.append(
@@ -458,8 +457,8 @@ class Experiment1(object):
             mapping from uniprot to gene
         """
         # check if we already stored all over/under expression pathway data if so restore them
-        ## if self.rppa_pathways_save_valid(all_pw_map):
-        ##     return self.restore_rppa_pathways(all_pw_map)
+        if self.rppa_pathways_save_valid(all_pw_map):
+            return self.restore_rppa_pathways(all_pw_map)
 
         num_pat = pat_ids.shape[0]
         # if there are missing ones calculate all of them
