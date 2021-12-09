@@ -5,12 +5,12 @@ import json
 
 import networkx as nx
 
-from .. import config
-from ..lib.sutils import *
+from pamogk import config
+from pamogk.lib.sutils import *
 
 
 DATA_ROOT = config.DATA_DIR / "communities"
-COMM_PRE = "Demon_Protein-Kidney"
+COMM_PRE = "Bigclam_HPA-PROTEIN-KIDNEY"
 COMM_MAP = f"{COMM_PRE}_comm_map.json"
 COMM_LIST_PATH = DATA_ROOT / COMM_MAP
 safe_create_dir(DATA_ROOT)

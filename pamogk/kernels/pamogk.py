@@ -3,23 +3,18 @@ import networkx as nx
 from pamogk.lib.sutils import *
 
 
-# options are raise, warn, print (default)
-# np.seterr(all='raise')
 
-
-def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=False):
+def kernel(pat_ids, pathway, label_key, sigma, normalization=False):
     """
     Parameters
     ----------
+    Histogram Kernel
     pat_ids:
         list of patient ids
     pathway:
         pathway networkx graph
-    alpha: float
-        the smoothing parameter
     label_key: str
-    epsilon: {1e-6} float
-        smoothing converges if the change is lower than epsilon
+    sigma:sigma in the Gaussian RBF kernel
     normalization: {False} bool
         normalize the kernel matrix such that the diagonal is 1
     """
@@ -28,59 +23,46 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=F
     pat_ind = {}
     for ind, pid in enumerate(pat_ids):
         pat_ind[pid] = ind
+        maxlb = 0
+        for idx, nid in enumerate(pathway.nodes):
+            nd = pathway.nodes[nid]
+            for pid, lb in nd[label_key].items():
+                if pid in pat_ind.keys():
+                    try:
+                        lb = int(lb)
+                    except ValueError:
+                        _lb = 1
+                    if _lb > maxlb:
+                        maxlb=_lb
+
     # extract labels of nodes of graphs
-    mutations = np.zeros([num_pat, len(pathway.nodes)], dtype=np.float)
+    pat_vec = np.zeros([num_pat, maxlb], dtype=np.int) 
     for idx, nid in enumerate(pathway.nodes):
         nd = pathway.nodes[nid]
         for pid, lb in nd[label_key].items():
+
             if pid in pat_ind.keys():
                 try:
-                    _lb = float(lb)
+                    _lb = int(lb)
                 except ValueError:
                     _lb = 1
-                mutations[pat_ind[pid], idx] = _lb
-
-    # extract the adjacency matrix on the order of nodes we have
-    adj_mat = nx.to_numpy_array(pathway, nodelist=pathway.nodes)
-    ordered_graph = nx.OrderedGraph()
-    ordered_graph.add_nodes_from(pathway.nodes())
-    ordered_graph.add_edges_from(sorted(list(pathway.edges())))
-
-    # smooth the mutations through the pathway
-    mutations = smooth(mutations, adj_mat, alpha, epsilon)
-    # get all pairs shortest paths
-    all_pairs_sp = nx.all_pairs_shortest_path(ordered_graph)
+                pat_vec[pat_ind[pid], _lb] +=1 
 
     km = np.zeros((num_pat, num_pat))
+    K=0
+    for k in range(pat_vec.shape[0]-1): 
+        for i in range(pat_vec.shape[0]-1): 
+            for j in range(pat_vec.shape[1]-1): 
 
-    checked = []
-    for src, dsp in all_pairs_sp:  # iterate all pairs shortest paths
-        # add source node to checked nodes so we won't check it again in destinations
-        checked.append(src)
-        # skip if the source is not gene/protein
-        if pathway.nodes[src]["type"] != "Protein":
-            continue
-        # otherwise
-        for dst, sp in dsp.items():
-            # if destination already checked skip
-            if dst in checked:
-                continue
-            # if the destination is not gene/protein skip
-            if pathway.nodes[sp[-1]]["type"] != "Protein":
-                continue
-            ind = np.isin(pathway.nodes, sp)
-            tmp_md = mutations[:, ind]
-            # calculate similarities of patients based on the current pathway
-            tmp_km = tmp_md @ np.transpose(tmp_md)
-            km += tmp_km  # update the main kernel matrix
+                K += (pat_vec[k][j] -  pat_vec[i][j]) * ((pat_vec[k][j] - pat_vec[i][j]))
 
-    # normalize the kernel matrix if normalization is true
+            K = exp(-1.0 * K / (2.0 * sigma * sigma))
+            km[k,i]=K 
+# normalize the kernel matrix if normalization is true
     if normalization == True:
         km = normalize_kernel_matrix(km)
-
     return km
-
-
+'''
 def smooth(md, adj_m, alpha=0.5, epsilon=10 ** -6):
     """
     md: numpy array
@@ -105,7 +87,7 @@ def smooth(md, adj_m, alpha=0.5, epsilon=10 ** -6):
 
     return s_md
 
-
+'''
 def normalize_kernel_matrix(km):
     kmD = np.array(np.diag(km))
     kmD[kmD == 0] = 1
