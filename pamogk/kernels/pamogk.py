@@ -29,7 +29,7 @@ def kernel(pat_ids, pathway, label_key, sigma, normalization=False):
             for pid, lb in nd[label_key].items():
                 if pid in pat_ind.keys():
                     try:
-                        lb = int(lb)
+                        _lb = int(lb)
                     except ValueError:
                         _lb = 1
                     if _lb > maxlb:
