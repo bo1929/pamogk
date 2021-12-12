@@ -4,7 +4,7 @@ from pamogk.lib.sutils import *
 
 
 
-def kernel(pat_ids, pathway, label_key, sigma, normalization=False):
+def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma, normalization=False):
     """
     Parameters
     ----------
@@ -15,6 +15,10 @@ def kernel(pat_ids, pathway, label_key, sigma, normalization=False):
         pathway networkx graph
     label_key: str
     sigma:sigma in the Gaussian RBF kernel
+    alpha: float
+        the smoothing parameter
+    epsilon: {1e-6} float
+        smoothing converges if the change is lower than epsilon
     normalization: {False} bool
         normalize the kernel matrix such that the diagonal is 1
     """

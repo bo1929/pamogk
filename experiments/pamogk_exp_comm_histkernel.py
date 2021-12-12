@@ -532,6 +532,7 @@ class Experiment1(object):
                 pat_ids,
                 comm,
                 label_key=f"label-oe-{self.label}",
+                alpha=self.smoothing_alpha,
                 sigma=1,
                 normalization=self.kernel_normalization,
             )
@@ -547,6 +548,7 @@ class Experiment1(object):
                 pat_ids,
                 comm,
                 label_key=f"label-ue-{self.label}",
+                alpha=self.smoothing_alpha,
                 sigma=1,
                 normalization=self.kernel_normalization,
             )
@@ -579,6 +581,7 @@ class Experiment1(object):
                 pat_ids,
                 comm,
                 label_key="label-som",
+                alpha=self.smoothing_alpha,
                 sigma=1,
                 normalization=self.kernel_normalization,
             )
