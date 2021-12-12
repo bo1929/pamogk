@@ -23,30 +23,46 @@ def kernel(pat_ids, pathway, label_key, sigma, normalization=False):
     pat_ind = {}
     for ind, pid in enumerate(pat_ids):
         pat_ind[pid] = ind
-        maxlb = 0
-        for idx, nid in enumerate(pathway.nodes):
-            nd = pathway.nodes[nid]
-            for pid, lb in nd[label_key].items():
-                if pid in pat_ind.keys():
-                    try:
-                        lb = int(lb)
-                    except ValueError:
-                        _lb = 1
-                    if _lb > maxlb:
-                        maxlb=_lb
-
     # extract labels of nodes of graphs
-    pat_vec = np.zeros([num_pat, maxlb], dtype=np.int) 
+    mutations = np.zeros([num_pat, len(pathway.nodes)], dtype=np.float)
     for idx, nid in enumerate(pathway.nodes):
         nd = pathway.nodes[nid]
         for pid, lb in nd[label_key].items():
-
             if pid in pat_ind.keys():
                 try:
-                    _lb = int(lb)
+                    _lb = float(lb)
                 except ValueError:
                     _lb = 1
-                pat_vec[pat_ind[pid], _lb] +=1 
+                mutations[pat_ind[pid], idx] = _lb
+
+    # extract the adjacency matrix on the order of nodes we have
+    adj_mat = nx.to_numpy_array(pathway, nodelist=pathway.nodes)
+    ordered_graph = nx.OrderedGraph()
+    ordered_graph.add_nodes_from(pathway.nodes())
+    ordered_graph.add_edges_from(sorted(list(pathway.edges())))
+
+    # smooth the mutations through the pathway
+    mutations = smooth(mutations, adj_mat, alpha, epsilon)
+
+    label_list_sm=[]
+    for p in range(mutations.shape[0]-1):
+        for idx in range(mutations.shape[1]-1):
+            label_list_sm.append(mutations[p][idx])
+    max_lb = max(label_list_sm), min_lb=min(label_list_sm)
+    step_bin= (max_lb-min_lb) / 19
+    bins= range(min_lb, max_lb+step_bin, step_bin)
+
+    pat_vec = np.zeros([num_pat, 20], dtype=np.float) 
+    
+    for p in range(mutations.shape[0]-1):
+        vec=[]
+        vec_hist=0
+        for idx in range(mutations.shape[1]-1):
+            vec.append(mutations[p][idx])
+        vec_hist=np.histogram(vec, bins)
+        pat_vec[p]=vec_hist[0]
+
+
 
     km = np.zeros((num_pat, num_pat))
     K=0
@@ -62,7 +78,7 @@ def kernel(pat_ids, pathway, label_key, sigma, normalization=False):
     if normalization == True:
         km = normalize_kernel_matrix(km)
     return km
-'''
+
 def smooth(md, adj_m, alpha=0.5, epsilon=10 ** -6):
     """
     md: numpy array
@@ -87,7 +103,7 @@ def smooth(md, adj_m, alpha=0.5, epsilon=10 ** -6):
 
     return s_md
 
-'''
+
 def normalize_kernel_matrix(km):
     kmD = np.array(np.diag(km))
     kmD[kmD == 0] = 1
