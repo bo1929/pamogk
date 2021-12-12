@@ -4,7 +4,7 @@ from pamogk.lib.sutils import *
 
 
 
-def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma, normalization=False):
+def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma=1, normalization=False):
     """
     Parameters
     ----------
@@ -52,7 +52,7 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma, normaliz
     for p in range(mutations.shape[0]-1):
         for idx in range(mutations.shape[1]-1):
             label_list_sm.append(mutations[p][idx])
-    max_lb = max(label_list_sm), min_lb=min(label_list_sm)
+    max_lb, min_lb = max(label_list_sm), min(label_list_sm)
     step_bin= (max_lb-min_lb) / 19
     bins= range(min_lb, max_lb+step_bin, step_bin)
 
