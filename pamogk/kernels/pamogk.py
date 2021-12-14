@@ -1,5 +1,5 @@
 import networkx as nx
-
+import numpy as np
 from pamogk.lib.sutils import *
 
 
@@ -54,7 +54,7 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma=1, normal
             label_list_sm.append(mutations[p][idx])
     max_lb, min_lb = max(label_list_sm), min(label_list_sm)
     step_bin= (max_lb-min_lb) / 19
-    bins= range(min_lb, max_lb+step_bin, step_bin)
+    bins= np.arange(min_lb, max_lb+step_bin, step_bin)
 
     pat_vec = np.zeros([num_pat, 20], dtype=np.float) 
     
