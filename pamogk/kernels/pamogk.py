@@ -53,7 +53,7 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma=1, normal
         for idx in range(mutations.shape[1]-1):
             label_list_sm.append(mutations[p][idx])
     max_lb, min_lb = max(label_list_sm), min(label_list_sm)
-    step_bin= (max_lb-min_lb) / 19
+    step_bin= (max_lb-min_lb) / 20
     bins= np.arange(min_lb, max_lb+step_bin, step_bin)
 
     pat_vec = np.zeros([num_pat, 20], dtype=np.float) 
@@ -76,7 +76,7 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma=1, normal
 
                 K += (pat_vec[k][j] -  pat_vec[i][j]) * ((pat_vec[k][j] - pat_vec[i][j]))
 
-            K = exp(-1.0 * K / (2.0 * sigma * sigma))
+            K = np.exp(-1.0 * K / (2.0 * sigma * sigma))
             km[k,i]=K 
 # normalize the kernel matrix if normalization is true
     if normalization == True:
