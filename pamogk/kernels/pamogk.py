@@ -48,39 +48,68 @@ def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma=1, normal
     # smooth the mutations through the pathway
     mutations = smooth(mutations, adj_mat, alpha, epsilon)
 
-    label_list_sm=[]
-    for p in range(mutations.shape[0]-1):
-        for idx in range(mutations.shape[1]-1):
-            label_list_sm.append(mutations[p][idx])
-    max_lb, min_lb = max(label_list_sm), min(label_list_sm)
-    step_bin= (max_lb-min_lb) / 20
-    bins= np.arange(min_lb, max_lb+step_bin, step_bin)
-
-    pat_vec = np.zeros([num_pat, 20], dtype=np.float) 
-    
-    for p in range(mutations.shape[0]-1):
-        vec=[]
-        vec_hist=0
-        for idx in range(mutations.shape[1]-1):
-            vec.append(mutations[p][idx])
-        vec_hist=np.histogram(vec, bins)
-        pat_vec[p]=vec_hist[0]
+    bins = arrange_bins(mutations, 20)
 
 
+    pat_vec = create_hist_matrix(bins, mutations)
 
-    km = np.zeros((num_pat, num_pat))
-    K=0
-    for k in range(pat_vec.shape[0]-1): 
-        for i in range(pat_vec.shape[0]-1): 
-            for j in range(pat_vec.shape[1]-1): 
 
-                K += (pat_vec[k][j] -  pat_vec[i][j]) * ((pat_vec[k][j] - pat_vec[i][j]))
+    km = RBF(pat_vec)
 
-            K = np.exp(-1.0 * K / (2.0 * sigma * sigma))
-            km[k,i]=K 
 # normalize the kernel matrix if normalization is true
     if normalization == True:
         km = normalize_kernel_matrix(km)
+    return km
+
+
+def arrange_bins(mutations, num_bins):
+    label_list_sm=[]
+    for p in range(mutations.shape[0]):
+        
+        for idx in range(mutations.shape[1]):
+
+            label_list_sm.append(mutations[p][idx])
+
+
+    max_lb, min_lb = max(label_list_sm), min(label_list_sm)
+
+    if max_lb - min_lb ==0:
+        max_lb=1
+
+    step_bin= (max_lb-min_lb) / num_bins
+
+    bins= np.arange(min_lb, max_lb+step_bin, step_bin)
+
+    return bins
+
+def create_hist_matrix(bins, mutations):
+    
+    num_pat = mutations.shape[0]
+    pat_vec = np.zeros([num_pat, len(bins)-1], dtype=np.float) 
+    
+    for p in range(mutations.shape[0]):
+        vec=[]
+        vec_hist=0
+        for idx in range(mutations.shape[1]):
+            vec.append(mutations[p][idx])
+        vec_hist=np.histogram(vec, bins)
+        pat_vec[p]=vec_hist[0]
+    return pat_vec
+
+
+def RBF(pat_vec, sigma=1):
+    num_pat= pat_vec.shape[0]
+    km = np.zeros((num_pat, num_pat))    
+    for k in range(pat_vec.shape[0]):
+        for i in range(pat_vec.shape[0]): 
+
+            K=0 
+
+            K= np.dot((pat_vec[k]-pat_vec[i]).T,pat_vec[k]- pat_vec[i])
+
+            K = np.exp(-1.0 * K / (2.0 * sigma * sigma))
+
+            km[k,i]=K 
     return km
 
 def smooth(md, adj_m, alpha=0.5, epsilon=10 ** -6):
