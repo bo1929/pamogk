@@ -38,6 +38,7 @@ def read_communities():
         log(f"Processing community {ind + 1:3}/{len(comm_ids)}", end="\t")
         comm_data = read_single_community(comm_id, reading_all=True)
         comm_map[comm_id] = comm_data
+
     log()
     return comm_map
 

@@ -8,13 +8,12 @@ import mkkm_mr
 import networkx as nx
 from sklearn.cluster import KMeans, SpectralClustering
 from snf_simple import SNF
-
 from pamogk import config
 from pamogk import label_mapper
 from pamogk.data_processor import rnaseq_processor as rp, synapse_rppa_processor as rpp
 from pamogk.gene_mapper import uniprot_mapper
 from pamogk.kernels.lmkkmeans_train import lmkkmeans_train
-from pamogk.kernels.pamogk import kernel
+from pamogk.kernels.pamogk import kernel_random_walk_exp
 from pamogk.lib.sutils import *
 from pamogk.communities import community_reader
 
@@ -332,7 +331,10 @@ class Experiment1(object):
         res = []
         for pat_id, ent_ids in patients.items():
             res.append(
-                {"pat_id": pat_id, "mutated_nodes": ent_ids,}
+                {
+                    "pat_id": pat_id,
+                    "mutated_nodes": ent_ids,
+                }
             )
         return res
 
@@ -510,7 +512,6 @@ class Experiment1(object):
         log()
         self.save_som_communities(all_comm_map)
 
-        self.save_rnaseq_communities(all_comm_map)
         return all_comm_map
 
     @timeit
@@ -525,12 +526,12 @@ class Experiment1(object):
         # calculate kernel matrices for over expressed genes
         over_exp_kms = np.zeros((num_comm, num_pat, num_pat))
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
-            over_exp_kms[ind] = kernel(
+            over_exp_kms[ind] = kernel_random_walk_exp(
                 pat_ids,
                 comm,
                 label_key=f"label-oe-{self.label}",
                 alpha=self.smoothing_alpha,
-                sigma=1,
+                beta=0.5,
                 normalization=self.kernel_normalization,
             )
             logr(
@@ -541,12 +542,12 @@ class Experiment1(object):
         # calculate kernel matrices for under expressed genes
         under_exp_kms = np.zeros((num_comm, num_pat, num_pat))
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
-            under_exp_kms[ind] = kernel(
+            under_exp_kms[ind] = kernel_random_walk_exp(
                 pat_ids,
                 comm,
                 label_key=f"label-ue-{self.label}",
                 alpha=self.smoothing_alpha,
-                sigma=1,
+                beta=0.5,
                 normalization=self.kernel_normalization,
             )
             logr(
@@ -574,12 +575,12 @@ class Experiment1(object):
             sorted(all_comm_map.items(), key=lambda x: len(x[1].nodes))
         )
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
-            kms[ind] = kernel(
+            kms[ind] = kernel_random_walk_exp(
                 pat_ids,
                 comm,
                 label_key="label-som",
                 alpha=self.smoothing_alpha,
-                sigma=1,
+                beta=0.5,
                 normalization=self.kernel_normalization,
             )
             logr(
@@ -726,7 +727,6 @@ class Experiment1(object):
         )
 
         all_rs_comm_map = self.read_comm()
-
         # Kernel part
         # RnaSeq Data
         labeled_all_rs_comm_map = self.label_rnaseq_patient_genes(
@@ -735,8 +735,8 @@ class Experiment1(object):
         rs_kernels = self.create_seq_kernels(
             labeled_all_rs_comm_map, rs_pat_ids, "rnaseq-kms"
         )
-        all_rp_comm_map = self.read_comm()
 
+        all_rp_comm_map = self.read_comm()
         # Rppa Data
         labeled_all_rp_comm_map = self.label_rppa_patient_genes(
             all_rp_comm_map, rp_pat_ids, rp_GE, rp_ent_ids
@@ -744,6 +744,7 @@ class Experiment1(object):
         rp_kernels = self.create_seq_kernels(
             labeled_all_rp_comm_map, rp_pat_ids, "rppa-kms"
         )
+
         all_som_comm_map = self.read_comm()
         # Somatic mutation data
         som_patients = self.preprocess_som_patient_data(som_patients)
