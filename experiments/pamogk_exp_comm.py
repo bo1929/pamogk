@@ -8,7 +8,6 @@ import mkkm_mr
 import networkx as nx
 from sklearn.cluster import KMeans, SpectralClustering
 from snf_simple import SNF
-
 from pamogk import config
 from pamogk import label_mapper
 from pamogk.data_processor import rnaseq_processor as rp, synapse_rppa_processor as rpp
@@ -513,7 +512,6 @@ class Experiment1(object):
         log()
         self.save_som_communities(all_comm_map)
 
-        self.save_rnaseq_communities(all_comm_map)
         return all_comm_map
 
     @timeit
@@ -552,7 +550,7 @@ class Experiment1(object):
             )
             logr(
                 f"Calculating ue pathway kernel={kms_file_name} {ind + 1:4}/{num_comm} comm_id={comm_id}"
-            )
+         )
         log()
 
         kms = np.vstack([over_exp_kms, under_exp_kms])  # stack all kernels
@@ -726,9 +724,6 @@ class Experiment1(object):
         )
 
         all_rs_comm_map = self.read_comm()
-        all_rp_comm_map = self.read_comm()
-        all_som_comm_map = self.read_comm()
-
         # Kernel part
         # RnaSeq Data
         labeled_all_rs_comm_map = self.label_rnaseq_patient_genes(
@@ -738,6 +733,7 @@ class Experiment1(object):
             labeled_all_rs_comm_map, rs_pat_ids, "rnaseq-kms"
         )
 
+        all_rp_comm_map = self.read_comm()
         # Rppa Data
         labeled_all_rp_comm_map = self.label_rppa_patient_genes(
             all_rp_comm_map, rp_pat_ids, rp_GE, rp_ent_ids
@@ -746,6 +742,7 @@ class Experiment1(object):
             labeled_all_rp_comm_map, rp_pat_ids, "rppa-kms"
         )
 
+        all_som_comm_map = self.read_comm()
         # Somatic mutation data
         som_patients = self.preprocess_som_patient_data(som_patients)
         labeled_all_som_comm_map = self.label_som_patient_genes(

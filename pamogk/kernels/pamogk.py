@@ -126,7 +126,7 @@ def kernel_random_walk_exp(
     return km
 
 
-def kernel(
+def kernel_rbf(
     pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, sigma=1, normalization=False
 ):
     """
@@ -184,7 +184,11 @@ def kernel(
     return km
 
 
-def arrange_bins(mutations, num_bins):
+def arrange_bins(
+    mutations, 
+    num_bins
+):
+
     label_list_sm = []
     for p in range(mutations.shape[0]):
 
@@ -204,7 +208,10 @@ def arrange_bins(mutations, num_bins):
     return bins
 
 
-def create_hist_matrix(bins, mutations):
+def create_hist_matrix(
+    bins, 
+    mutations
+):
 
     num_pat = mutations.shape[0]
     pat_vec = np.zeros([num_pat, len(bins) - 1], dtype=np.float)
@@ -219,7 +226,11 @@ def create_hist_matrix(bins, mutations):
     return pat_vec
 
 
-def RBF(pat_vec, sigma=1):
+def RBF(
+    pat_vec, 
+    sigma=1
+):
+
     num_pat = pat_vec.shape[0]
     km = np.zeros((num_pat, num_pat))
     for k in range(pat_vec.shape[0]):
@@ -232,6 +243,80 @@ def RBF(pat_vec, sigma=1):
             K = np.exp(-1.0 * K / (2.0 * sigma * sigma))
 
             km[k, i] = K
+    return km
+
+
+def kernel(pat_ids, pathway, label_key, alpha=0.5, epsilon=1e-6, normalization=False):
+    """
+    Parameters
+    ----------
+    pat_ids:
+        list of patient ids
+    pathway:
+        pathway networkx graph
+    alpha: float
+        the smoothing parameter
+    label_key: str
+    epsilon: {1e-6} float
+        smoothing converges if the change is lower than epsilon
+    normalization: {False} bool
+        normalize the kernel matrix such that the diagonal is 1
+    """
+
+    num_pat = pat_ids.shape[0]
+    pat_ind = {}
+    for ind, pid in enumerate(pat_ids):
+        pat_ind[pid] = ind
+    # extract labels of nodes of graphs
+    mutations = np.zeros([num_pat, len(pathway.nodes)], dtype=np.float)
+    for idx, nid in enumerate(pathway.nodes):
+        nd = pathway.nodes[nid]
+        for pid, lb in nd[label_key].items():
+            if pid in pat_ind.keys():
+                try:
+                    _lb = float(lb)
+                except ValueError:
+                    _lb = 1
+                mutations[pat_ind[pid], idx] = _lb
+
+    # extract the adjacency matrix on the order of nodes we have
+    adj_mat = nx.to_numpy_array(pathway, nodelist=pathway.nodes)
+    ordered_graph = nx.OrderedGraph()
+    ordered_graph.add_nodes_from(pathway.nodes())
+    ordered_graph.add_edges_from(sorted(list(pathway.edges())))
+
+    # smooth the mutations through the pathway
+    mutations = smooth(mutations, adj_mat, alpha, epsilon)
+    # get all pairs shortest paths
+    all_pairs_sp = nx.all_pairs_shortest_path(ordered_graph)
+
+    km = np.zeros((num_pat, num_pat))
+
+    checked = []
+    for src, dsp in all_pairs_sp:  # iterate all pairs shortest paths
+        # add source node to checked nodes so we won't check it again in destinations
+        checked.append(src)
+        # skip if the source is not gene/protein
+        if pathway.nodes[src]["type"] != "Protein":
+            continue
+        # otherwise
+        for dst, sp in dsp.items():
+            # if destination already checked skip
+            if dst in checked:
+                continue
+            # if the destination is not gene/protein skip
+            if pathway.nodes[sp[-1]]["type"] != "Protein":
+                continue
+            ind = np.isin(pathway.nodes, sp)
+            tmp_md = mutations[:, ind]
+            # calculate similarities of patients based on the current pathway
+            tmp_km = tmp_md @ np.transpose(tmp_md)
+            km += tmp_km  # update the main kernel matrix
+
+    # normalize the kernel matrix if normalization is true
+    if normalization == True:
+        km = normalize_kernel_matrix(km)
+
     return km
 
 

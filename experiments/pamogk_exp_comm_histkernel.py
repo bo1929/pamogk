@@ -526,7 +526,7 @@ class Experiment1(object):
         # calculate kernel matrices for over expressed genes
         over_exp_kms = np.zeros((num_comm, num_pat, num_pat))
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
-            over_exp_kms[ind] = kernel(
+            over_exp_kms[ind] = kernel_rbf(
                 pat_ids,
                 comm,
                 label_key=f"label-oe-{self.label}",
@@ -542,7 +542,7 @@ class Experiment1(object):
         # calculate kernel matrices for under expressed genes
         under_exp_kms = np.zeros((num_comm, num_pat, num_pat))
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
-            under_exp_kms[ind] = kernel(
+            under_exp_kms[ind] = kernel_rbf(
                 pat_ids,
                 comm,
                 label_key=f"label-ue-{self.label}",
@@ -575,7 +575,7 @@ class Experiment1(object):
             sorted(all_comm_map.items(), key=lambda x: len(x[1].nodes))
         )
         for ind, (comm_id, comm) in enumerate(all_comm_map.items()):  # for each pathway
-            kms[ind] = kernel(
+            kms[ind] = kernel_rbf(
                 pat_ids,
                 comm,
                 label_key="label-som",
@@ -724,6 +724,7 @@ class Experiment1(object):
             som_patients,
         ) = self.find_intersection_patients(
             rs_GE, rs_pat_ids, rp_GE, rp_pat_ids, som_patients
+
         )
 
         all_rs_comm_map = self.read_comm()
