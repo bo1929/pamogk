@@ -162,6 +162,7 @@ def kernel_rbf(
                 except ValueError:
                     _lb = 1
                 mutations[pat_ind[pid], idx] = _lb
+    
 
     # extract the adjacency matrix on the order of nodes we have
     adj_mat = nx.to_numpy_array(pathway, nodelist=pathway.nodes)
@@ -434,4 +435,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

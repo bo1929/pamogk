@@ -13,7 +13,7 @@ from pamogk import label_mapper
 from pamogk.data_processor import rnaseq_processor as rp, synapse_rppa_processor as rpp
 from pamogk.gene_mapper import uniprot_mapper
 from pamogk.kernels.lmkkmeans_train import lmkkmeans_train
-from pamogk.kernels.pamogk import kernel
+from pamogk.kernels.pamogk import kernel_rbf
 from pamogk.lib.sutils import *
 from pamogk.communities import community_reader
 
@@ -50,6 +50,33 @@ parser.add_argument(
     type=str2path,
     help="som mut pathway ID list",
     default=config.DATA_DIR / "kirc_data/kirc_somatic_mutation_data.csv",
+)
+parser.add_argument(
+    "--clinical-data",
+    "-cdata",
+    metavar="file-path",
+    dest="clinical_patient_data",
+    type=str2path,
+    help="clinilcal data",
+    default=config.DATA_DIR / "kirc_data/kirc_clinical_data.csv",
+)
+parser.add_argument(
+    "--result",
+    "-r",
+    metavar="file-path",
+    dest="r_dir",
+    type=str2path,
+    help="result_path",
+    default= "pamogk_kirc",
+)
+parser.add_argument(
+    "--community_data",
+    "-comm",
+    metavar="file-path",
+    dest="comm_path",
+    type=str2path,
+    help="comm_path",
+    default= "Bigclam_HPA-PROTEIN-KIDNEY",
 )
 parser.add_argument(
     "--label",
@@ -340,7 +367,7 @@ class Experiment1(object):
 
     @timeit
     def read_comm(self):
-        return community_reader.read_communities()
+        return community_reader.read_communities(self.args.comm_path)
 
     @timeit
     def label_rnaseq_patient_genes(self, all_comm_map, pat_ids, GE, ent_ids):
@@ -773,6 +800,7 @@ class Experiment1(object):
             methods=["mkkm", "kmeans"],
             cluster_sizes=cluster_sizes,
             log2_lambdas=self.log2_lambdas,
+            clinical_data_path=self.args.clinical_patient_data,
         )
         self.label_analyzer.run()
 

@@ -29,7 +29,15 @@ def get_community_map():
 
 
 @timeit
-def read_communities():
+def read_communities(comm_pre):
+    global COMM_PRE 
+    global COMM_MAP 
+    global COMM_LIST_PATH
+    COMM_PRE = comm_pre
+    COMM_MAP = f"{COMM_PRE}_comm_map.json"
+    COMM_LIST_PATH = DATA_ROOT / COMM_MAP
+    safe_create_dir(DATA_ROOT)
+
     community_map = get_community_map()
     comm_map = coll.OrderedDict()
     comm_ids = community_map.keys()
@@ -38,6 +46,7 @@ def read_communities():
         log(f"Processing community {ind + 1:3}/{len(comm_ids)}", end="\t")
         comm_data = read_single_community(comm_id, reading_all=True)
         comm_map[comm_id] = comm_data
+
 
     log()
     return comm_map

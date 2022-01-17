@@ -52,6 +52,33 @@ parser.add_argument(
     default=config.DATA_DIR / "kirc_data/kirc_somatic_mutation_data.csv",
 )
 parser.add_argument(
+    "--clinical-data",
+    "-cdata",
+    metavar="file-path",
+    dest="clinical_patient_data",
+    type=str2path,
+    help="clinilcal data",
+    default=config.DATA_DIR / "kirc_data/kirc_clinical_data.csv",
+)
+parser.add_argument(
+    "--result",
+    "-r",
+    metavar="file-path",
+    dest="r_dir",
+    type=str2path,
+    help="result_path",
+    default= "pamogk_kirc",
+)
+parser.add_argument(
+    "--community_data",
+    "-comm",
+    metavar="file-path",
+    dest="comm_path",
+    type=str2path,
+    help="comm_path",
+    default= "Bigclam_HPA-PROTEIN-KIDNEY",
+)
+parser.add_argument(
     "--label",
     "-m",
     metavar="label",
@@ -133,7 +160,7 @@ class Experiment1(object):
         if self.args.run_id is not None:
             run_suffix = f"-run={self.args.run_id}"
 
-        self.data_dir = config.DATA_DIR / "pamogk_kirc" / exp_subdir / param_dir
+        self.data_dir = config.DATA_DIR / self.args.r_dir / exp_subdir / param_dir
         self.result_dir = self.data_dir / ("results" + run_suffix)
         self.kernel_dir = self.data_dir / "kernels"
 
@@ -340,7 +367,7 @@ class Experiment1(object):
 
     @timeit
     def read_comm(self):
-        return community_reader.read_communities()
+        return community_reader.read_communities(self.args.comm_path)
 
     @timeit
     def label_rnaseq_patient_genes(self, all_comm_map, pat_ids, GE, ent_ids):
@@ -769,6 +796,7 @@ class Experiment1(object):
             methods=["mkkm", "kmeans"],
             cluster_sizes=cluster_sizes,
             log2_lambdas=self.log2_lambdas,
+            clinical_data_path=self.args.clinical_patient_data,
         )
         self.label_analyzer.run()
 
