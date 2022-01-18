@@ -1,0 +1,27 @@
+Yumurtalık Hücreleri
+Node:  6389
+Edge:  65934
+Topluluk Sayısı:  188
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  83.0
+Mean:  87.01063829787235
+Std-dev:  30.220754521826088
+Max:  190
+Min:  24
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0
+Mean:  2.560338081076851
+Std-dev:  8.478877117909617
+Max:  111
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  4168
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  779
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  2
+Mean:  7.365150832958127
+Std-dev:  13.094336556441693
+Max:  111
+Min:  1

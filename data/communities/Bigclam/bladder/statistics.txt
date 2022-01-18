@@ -1,0 +1,27 @@
+Ürotelyal Hücreler
+Node:  9015
+Edge:  107809
+Topluluk Sayısı:  111
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  168
+Mean:  175.11711711711712
+Std-dev:  56.41078857786928
+Max:  347
+Min:  59
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0
+Mean:  2.1561841375485304
+Std-dev:  9.375402322463103
+Max:  111
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  6822
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  938
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  2
+Mean:  8.863657090743274
+Std-dev:  17.377493958885978
+Max:  111
+Min:  1

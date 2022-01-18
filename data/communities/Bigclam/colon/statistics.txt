@@ -1,0 +1,27 @@
+Kolon Hücreleri
+Node:  10141
+Edge:  122095
+Topluluk Sayısı:  100
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  141.5
+Mean:  168.64
+Std-dev:  104.67463007729323
+Max:  723
+Min:  79
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0
+Mean:  1.66295237156099
+Std-dev:  9.367217854619215
+Max:  100
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  6636
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  2177
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  1
+Mean:  4.8114122681883025
+Std-dev:  15.452057460695258
+Max:  100
+Min:  1

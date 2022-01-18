@@ -1,0 +1,27 @@
+Özofagus Skuamöz Epitel Hücreleri
+Node:  8124
+Edge:  91216
+Topluluk Sayısı:  137
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  111
+Mean:  123.51824817518248
+Std-dev:  48.08067702092908
+Max:  273
+Min:  45
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0.0
+Mean:  2.082964057114722
+Std-dev:  8.423585904238731
+Max:  112
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  6055
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  848
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  2
+Mean:  8.178830352827452
+Std-dev:  15.12724610893078
+Max:  112
+Min:  1

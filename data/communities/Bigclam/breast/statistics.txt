@@ -1,0 +1,27 @@
+Meme Hücreleri
+Node:  8851
+Edge:  104717
+Topluluk Sayısı:  111
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  116
+Mean:  139.3963963963964
+Std-dev:  89.27457942970402
+Max:  637
+Min:  64
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0
+Mean:  1.7481640492599706
+Std-dev:  9.714452263874485
+Max:  111
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  5418
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  2038
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  1
+Mean:  4.50713661520536
+Std-dev:  15.195789764264008
+Max:  111
+Min:  1
