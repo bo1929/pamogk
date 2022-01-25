@@ -1,0 +1,27 @@
+Kemik İliği Hematopoetik Hücreleri
+Node:  7839
+Edge:  88243
+Topluluk Sayısı:  100
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  153.5
+Mean:  165.61
+Std-dev:  55.00943812500072
+Max:  341
+Min:  61
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0
+Mean:  2.1126419186120677
+Std-dev:  8.278696310618788
+Max:  100
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  5847
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  814
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  2.0
+Mean:  8.313755020080322
+Std-dev:  14.772592332941556
+Max:  100
+Min:  1

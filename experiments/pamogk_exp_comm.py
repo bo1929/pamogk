@@ -8,7 +8,6 @@ import mkkm_mr
 import networkx as nx
 from sklearn.cluster import KMeans, SpectralClustering
 from snf_simple import SNF
-
 from pamogk import config
 from pamogk import label_mapper
 from pamogk.data_processor import rnaseq_processor as rp, synapse_rppa_processor as rpp
@@ -51,6 +50,33 @@ parser.add_argument(
     type=str2path,
     help="som mut pathway ID list",
     default=config.DATA_DIR / "kirc_data/kirc_somatic_mutation_data.csv",
+)
+parser.add_argument(
+    "--clinical-data",
+    "-cdata",
+    metavar="file-path",
+    dest="clinical_patient_data",
+    type=str2path,
+    help="clinilcal data",
+    default=config.DATA_DIR / "kirc_data/kirc_clinical_data.csv",
+)
+parser.add_argument(
+    "--result",
+    "-r",
+    metavar="file-path",
+    dest="r_dir",
+    type=str2path,
+    help="result_path",
+    default= "pamogk_kirc",
+)
+parser.add_argument(
+    "--community_data",
+    "-comm",
+    metavar="file-path",
+    dest="comm_path",
+    type=str2path,
+    help="comm_path",
+    default= "Bigclam_HPA-PROTEIN-KIDNEY",
 )
 parser.add_argument(
     "--label",
@@ -134,7 +160,7 @@ class Experiment1(object):
         if self.args.run_id is not None:
             run_suffix = f"-run={self.args.run_id}"
 
-        self.data_dir = config.DATA_DIR / "pamogk_kirc" / exp_subdir / param_dir
+        self.data_dir = config.DATA_DIR / self.args.r_dir / exp_subdir / param_dir
         self.result_dir = self.data_dir / ("results" + run_suffix)
         self.kernel_dir = self.data_dir / "kernels"
 
@@ -341,7 +367,7 @@ class Experiment1(object):
 
     @timeit
     def read_comm(self):
-        return community_reader.read_communities()
+        return community_reader.read_communities(self.args.comm_path)
 
     @timeit
     def label_rnaseq_patient_genes(self, all_comm_map, pat_ids, GE, ent_ids):
@@ -513,7 +539,6 @@ class Experiment1(object):
         log()
         self.save_som_communities(all_comm_map)
 
-        self.save_rnaseq_communities(all_comm_map)
         return all_comm_map
 
     @timeit
@@ -552,7 +577,7 @@ class Experiment1(object):
             )
             logr(
                 f"Calculating ue pathway kernel={kms_file_name} {ind + 1:4}/{num_comm} comm_id={comm_id}"
-            )
+         )
         log()
 
         kms = np.vstack([over_exp_kms, under_exp_kms])  # stack all kernels
@@ -726,9 +751,6 @@ class Experiment1(object):
         )
 
         all_rs_comm_map = self.read_comm()
-        all_rp_comm_map = self.read_comm()
-        all_som_comm_map = self.read_comm()
-
         # Kernel part
         # RnaSeq Data
         labeled_all_rs_comm_map = self.label_rnaseq_patient_genes(
@@ -738,6 +760,7 @@ class Experiment1(object):
             labeled_all_rs_comm_map, rs_pat_ids, "rnaseq-kms"
         )
 
+        all_rp_comm_map = self.read_comm()
         # Rppa Data
         labeled_all_rp_comm_map = self.label_rppa_patient_genes(
             all_rp_comm_map, rp_pat_ids, rp_GE, rp_ent_ids
@@ -746,6 +769,7 @@ class Experiment1(object):
             labeled_all_rp_comm_map, rp_pat_ids, "rppa-kms"
         )
 
+        all_som_comm_map = self.read_comm()
         # Somatic mutation data
         som_patients = self.preprocess_som_patient_data(som_patients)
         labeled_all_som_comm_map = self.label_som_patient_genes(
@@ -772,6 +796,7 @@ class Experiment1(object):
             methods=["mkkm", "kmeans"],
             cluster_sizes=cluster_sizes,
             log2_lambdas=self.log2_lambdas,
+            clinical_data_path=self.args.clinical_patient_data,
         )
         self.label_analyzer.run()
 

@@ -1,0 +1,27 @@
+Akciğer Hücreleri
+Node:  9092
+Edge:  102370
+Topluluk Sayısı:  209
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  118
+Mean:  126.2153110047847
+Std-dev:  48.85276697761507
+Max:  320
+Min:  40
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0.0
+Mean:  2.9013418389793224
+Std-dev:  11.51393632481764
+Max:  152
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  6137
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  1143
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  2
+Mean:  8.926903553299493
+Std-dev:  18.819710953363476
+Max:  152
+Min:  1

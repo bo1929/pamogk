@@ -1,0 +1,27 @@
+Rektum Glandüler Hücreler
+Node:  9472
+Edge:  111611
+Topluluk Sayısı:  100
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  167.0
+Mean:  177.11
+Std-dev:  57.50659075095636
+Max:  327
+Min:  72
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0.0
+Mean:  1.869510135135135
+Std-dev:  8.574988703590913
+Max:  100
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  7414
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  879
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  2.0
+Mean:  8.604470359572401
+Std-dev:  16.7503914708053
+Max:  100
+Min:  1

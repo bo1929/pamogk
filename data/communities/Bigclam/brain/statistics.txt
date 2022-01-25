@@ -1,0 +1,27 @@
+Beyin-Beyincik Hücreleri
+Node:  8745
+Edge:  97825
+Topluluk Sayısı:  169
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  104
+Mean:  109.68639053254438
+Std-dev:  40.78459521114624
+Max:  273
+Min:  35
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0
+Mean:  2.1197255574614067
+Std-dev:  8.476567772722106
+Max:  119
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  6384
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  881
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  2
+Mean:  7.85133418043202
+Std-dev:  14.872748630327322
+Max:  119
+Min:  1

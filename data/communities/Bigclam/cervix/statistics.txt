@@ -1,0 +1,27 @@
+Serviks Hücreleri
+Node:  8404
+Edge:  97315
+Topluluk Sayısı:  123
+ 
+Topluluklarda Bulunan Üye Sayısı
+Median:  146
+Mean:  149.65853658536585
+Std-dev:  51.053464304716826
+Max:  317
+Min:  59
+ 
+Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  0.0
+Mean:  2.1902665397429795
+Std-dev:  9.095371575766848
+Max:  123
+Min:  0
+Hiçbir Topluluğa Ait Olmayan Node Sayısı:  6351
+Sadece Bir Topluluğa Ait Olan Node Sayısı:  819
+ 
+Hiçbir Topluluğa Ait Olmayanlar Olmadan Her Bir Düğümün Ait Olduğu Toplam Topluluk Sayısı
+Median:  2
+Mean:  8.96590355577204
+Std-dev:  16.672887921465975
+Max:  123
+Min:  1

@@ -3,14 +3,14 @@
 import collections as coll
 import json
 
-from .. import config
-from ..lib.sutils import *
+from pamogk import config
+from pamogk.lib.sutils import *
 
 from pamogk.gene_mapper import uniprot_mapper
 
 DATA_ROOT = config.DATA_DIR / "communities"
-DETECTION_ALGORITHM = "Demon"
-COMM_TYPE = "Protein-Kidney"
+DETECTION_ALGORITHM = "Bigclam"
+COMM_TYPE = "HPA-PROTEIN-KIDNEY"
 COMM_PATH = DATA_ROOT / DETECTION_ALGORITHM / COMM_TYPE
 COMM_NAME = f"{DETECTION_ALGORITHM}_{COMM_TYPE}"
 safe_create_dir(DATA_ROOT)
